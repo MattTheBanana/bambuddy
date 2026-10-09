@@ -5,19 +5,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 def _validate_password_complexity(v: str) -> str:
-    """Enforce minimum password complexity (M-C).
-
-    Requires at least one uppercase letter, one lowercase letter, one digit,
-    and one special character in addition to the min_length=8 Field constraint.
-    """
-    if not re.search(r"[A-Z]", v):
-        raise ValueError("Password must contain at least one uppercase letter")
-    if not re.search(r"[a-z]", v):
-        raise ValueError("Password must contain at least one lowercase letter")
-    if not re.search(r"\d", v):
-        raise ValueError("Password must contain at least one digit")
-    if not re.search(r"[^A-Za-z0-9]", v):
-        raise ValueError("Password must contain at least one special character")
+    """Accept passwords without complexity requirements."""
     return v
 
 
