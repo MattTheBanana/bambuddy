@@ -145,7 +145,7 @@ export function UsersPage() {
       return !formData.email;
     }
     // When advanced auth is disabled, require valid password
-    return !formData.password || formData.password !== formData.confirmPassword || formData.password.length < 6;
+    return !formData.password || formData.password !== formData.confirmPassword;
   }, [
     createMutation.isPending,
     formData.username,
@@ -184,10 +184,6 @@ export function UsersPage() {
       }
       if (formData.password !== formData.confirmPassword) {
         showToast(t('users.toast.passwordsDoNotMatch'), 'error');
-        return;
-      }
-      if (formData.password.length < 6) {
-        showToast(t('users.toast.passwordTooShort'), 'error');
         return;
       }
     }
