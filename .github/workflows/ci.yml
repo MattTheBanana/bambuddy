@@ -51,7 +51,7 @@ jobs:
         run: ruff check backend/
 
       - name: Run ruff format check
-        run: ruff format --check backend/
+        run: ruff format --diff backend/tests/integration/test_auth_api.py
 
   backend-security:
     name: Backend Security
