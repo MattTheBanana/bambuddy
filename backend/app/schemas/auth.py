@@ -117,7 +117,7 @@ class LDAPProvisionRequest(BaseModel):
 
 class ChangePasswordRequest(BaseModel):
     current_password: str = Field(..., max_length=256)  # M-NEW-3: cap before pbkdf2
-    new_password: str = Field(..., min_length=8, max_length=256)
+    new_password: str = Field(..., max_length=256)
 
     @field_validator("new_password")
     @classmethod
@@ -148,7 +148,7 @@ class ForgotPasswordRequest(BaseModel):
 
 class ForgotPasswordConfirmRequest(BaseModel):
     token: str = Field(..., max_length=128)
-    new_password: str = Field(..., min_length=8, max_length=256)
+    new_password: str = Field(..., max_length=256)
 
     @field_validator("new_password")
     @classmethod
@@ -260,7 +260,7 @@ class TwoFAVerifyRequest(BaseModel):
     pre_auth_token: str = Field(..., max_length=128)
     # TOTP/email codes are 6 digits; backup codes are 8 uppercase alphanumeric chars.
     # max_length=8 prevents excessively long inputs from reaching pbkdf2/pyotp.
-    code: str = Field(..., min_length=6, max_length=8)
+    code: str = Field(..., max_length=8)
     method: Literal["totp", "email", "backup"] = "totp"
 
     @field_validator("code")
@@ -287,7 +287,7 @@ class EmailOTPEnableConfirmRequest(BaseModel):
 
     setup_token: str = Field(..., max_length=128)
     # L-NEW-3: email OTP setup codes are always exactly 6 digits; reject anything else.
-    code: str = Field(..., min_length=6, max_length=6)
+    code: str = Field(..., max_length=6)
 
     @field_validator("code")
     @classmethod
