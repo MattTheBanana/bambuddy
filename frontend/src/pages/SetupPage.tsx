@@ -63,10 +63,6 @@ export function SetupPage() {
           showToast(t('setup.toast.passwordsDoNotMatch'), 'error');
           return;
         }
-        if (adminPassword.length < 6) {
-          showToast(t('setup.toast.passwordTooShort'), 'error');
-          return;
-        }
       }
     }
 
