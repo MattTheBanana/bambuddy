@@ -37,7 +37,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/matthebanana/bambuddy
+          images: ghcr.io/mattthebanana/bambuddy
           tags: |
             type=raw,value=latest
             type=sha
