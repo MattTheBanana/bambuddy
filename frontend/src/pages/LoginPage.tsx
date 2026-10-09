@@ -461,10 +461,6 @@ export function LoginPage() {
         showToast(t('login.resetPassword.passwordsDoNotMatch'), 'error');
         return;
       }
-      if (newPassword.length < 8) {
-        showToast(t('login.resetPassword.passwordTooShort'), 'error');
-        return;
-      }
       resetPasswordMutation.mutate();
     };
 
