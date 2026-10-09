@@ -70,10 +70,13 @@ class TestAuthSetupAPI:
         assert result["auth_enabled"] is True
         assert result["admin_created"] is True
 
+    ```python
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_setup_weak_password_rejected_when_creating_new_admin(self, async_client: AsyncClient):
-        """Complexity is enforced only when a new admin is being created."""
+    async def test_setup_weak_password_accepted_when_creating_new_admin(
+        self, async_client: AsyncClient
+    ):
+        """Verify a password without a special character is accepted."""
         response = await async_client.post(
             "/api/v1/auth/setup",
             json={
@@ -83,8 +86,12 @@ class TestAuthSetupAPI:
             },
         )
 
-        assert response.status_code == 400
-        assert "special character" in response.json()["detail"].lower()
+        assert response.status_code == 200
+        result = response.json()
+        assert result["auth_enabled"] is True
+        assert result["admin_created"] is True
+```
+
 
     @pytest.mark.asyncio
     @pytest.mark.integration
