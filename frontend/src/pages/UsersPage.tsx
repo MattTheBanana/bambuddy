@@ -204,10 +204,6 @@ export function UsersPage() {
         showToast(t('users.toast.passwordsDoNotMatch'), 'error');
         return;
       }
-      if (formData.password.length < 6) {
-        showToast(t('users.toast.passwordTooShort'), 'error');
-        return;
-      }
     }
     const updateData: UserUpdate = {
       username: formData.username || undefined,
@@ -533,7 +529,6 @@ export function UsersPage() {
                     className="w-full px-4 py-3 bg-bambu-dark-secondary border border-bambu-dark-tertiary rounded-lg text-white placeholder-bambu-gray focus:outline-none focus:ring-2 focus:ring-bambu-green/50 focus:border-bambu-green transition-colors"
                     placeholder={t('users.form.passwordPlaceholder')}
                     autoComplete="new-password"
-                    minLength={6}
                   />
                 </div>
                 <div>
@@ -551,7 +546,6 @@ export function UsersPage() {
                     }`}
                     placeholder={t('users.form.confirmPasswordPlaceholder')}
                     autoComplete="new-password"
-                    minLength={6}
                   />
                   {formData.confirmPassword && formData.password !== formData.confirmPassword && (
                     <p className="text-red-700 dark:text-red-400 text-xs mt-1">{t('users.toast.passwordsDoNotMatch')}</p>
@@ -704,7 +698,6 @@ export function UsersPage() {
                     className="w-full px-4 py-3 bg-bambu-dark-secondary border border-bambu-dark-tertiary rounded-lg text-white placeholder-bambu-gray focus:outline-none focus:ring-2 focus:ring-bambu-green/50 focus:border-bambu-green transition-colors"
                     placeholder={t('users.form.newPasswordPlaceholder')}
                     autoComplete="new-password"
-                    minLength={6}
                   />
                 </div>
                 {formData.password && (
@@ -723,7 +716,6 @@ export function UsersPage() {
                       }`}
                       placeholder={t('users.form.confirmNewPasswordPlaceholder')}
                       autoComplete="new-password"
-                      minLength={6}
                     />
                     {formData.confirmPassword && formData.password !== formData.confirmPassword && (
                       <p className="text-red-700 dark:text-red-400 text-xs mt-1">{t('users.toast.passwordsDoNotMatch')}</p>
@@ -767,7 +759,7 @@ export function UsersPage() {
                 </Button>
                 <Button
                   onClick={() => handleUpdate(editingUserId)}
-                  disabled={updateMutation.isPending || !formData.username || !!(formData.password && (formData.password !== formData.confirmPassword || formData.password.length < 6))}
+                  disabled={updateMutation.isPending || !formData.username || !!(formData.password && (formData.password !== formData.confirmPassword))}
                 >
                   {updateMutation.isPending ? (
                     <>
