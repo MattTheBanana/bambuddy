@@ -6,7 +6,6 @@ import { api } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 import { formatDateOnly } from '../utils/date';
 import { getCurrencySymbol, SUPPORTED_CURRENCIES } from '../utils/currency';
-import { checkPasswordComplexity } from '../utils/password';
 import { fleetAudience, sponsorHref } from '../utils/fleetAudience';
 import { PRESET_CATEGORIES, parsePresetTriple } from '../utils/temperatureFanPresets';
 import { CALIBRATION_MODES, CALIBRATION_MODE_ACTIVE, CALIBRATION_MODE_INACTIVE } from '../utils/calibrationMode';
@@ -865,18 +864,6 @@ export function SettingsPage() {
         showToast(t('settings.toast.passwordsDoNotMatch'), 'error');
         return;
       }
-      const complexityIssue = checkPasswordComplexity(userFormData.password);
-      if (complexityIssue) {
-        const issueToKey = {
-          tooShort: 'settings.toast.passwordTooShort',
-          needsUppercase: 'settings.toast.passwordNeedsUppercase',
-          needsLowercase: 'settings.toast.passwordNeedsLowercase',
-          needsDigit: 'settings.toast.passwordNeedsDigit',
-          needsSpecial: 'settings.toast.passwordNeedsSpecial',
-        } as const;
-        showToast(t(issueToKey[complexityIssue]), 'error');
-        return;
-      }
     }
 
     createUserMutation.mutate({
@@ -892,18 +879,6 @@ export function SettingsPage() {
     if (userFormData.password) {
       if (userFormData.password !== userFormData.confirmPassword) {
         showToast(t('settings.toast.passwordsDoNotMatch'), 'error');
-        return;
-      }
-      const complexityIssue = checkPasswordComplexity(userFormData.password);
-      if (complexityIssue) {
-        const issueToKey = {
-          tooShort: 'settings.toast.passwordTooShort',
-          needsUppercase: 'settings.toast.passwordNeedsUppercase',
-          needsLowercase: 'settings.toast.passwordNeedsLowercase',
-          needsDigit: 'settings.toast.passwordNeedsDigit',
-          needsSpecial: 'settings.toast.passwordNeedsSpecial',
-        } as const;
-        showToast(t(issueToKey[complexityIssue]), 'error');
         return;
       }
     }
@@ -7304,7 +7279,7 @@ export function SettingsPage() {
                 </Button>
                 <Button
                   onClick={handleCreateUser}
-                  disabled={createUserMutation.isPending || !userFormData.username || !userFormData.password || userFormData.password !== userFormData.confirmPassword || checkPasswordComplexity(userFormData.password) !== null}
+                  disabled={createUserMutation.isPending || !userFormData.username || !userFormData.password || userFormData.password !== userFormData.confirmPassword !== null}
                 >
                   {createUserMutation.isPending ? (
                     <>
@@ -7524,7 +7499,7 @@ export function SettingsPage() {
                     updateUserMutation.isPending ||
                     !userFormData.username ||
                     (advancedAuthStatus?.advanced_auth_enabled && !userFormData.email) ||
-                    Boolean(!advancedAuthStatus?.advanced_auth_enabled && userFormData.password && (userFormData.password !== userFormData.confirmPassword || checkPasswordComplexity(userFormData.password) !== null))
+                    Boolean(!advancedAuthStatus?.advanced_auth_enabled && userFormData.password && (userFormData.password !== userFormData.confirmPassword !== null))
                   }
                 >
                   {updateUserMutation.isPending ? (
