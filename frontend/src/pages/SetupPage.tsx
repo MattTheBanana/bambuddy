@@ -143,7 +143,6 @@ export function SetupPage() {
                     onChange={(e) => setAdminPassword(e.target.value)}
                     className="block w-full px-4 py-3 bg-bambu-dark-secondary border border-bambu-dark-tertiary rounded-lg text-white placeholder-bambu-gray focus:outline-none focus:ring-2 focus:ring-bambu-green/50 focus:border-bambu-green transition-colors"
                     placeholder={t('setup.adminPasswordPlaceholder')}
-                    minLength={6}
                     autoComplete="new-password"
                   />
                 </div>
@@ -160,7 +159,6 @@ export function SetupPage() {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="block w-full px-4 py-3 bg-bambu-dark-secondary border border-bambu-dark-tertiary rounded-lg text-white placeholder-bambu-gray focus:outline-none focus:ring-2 focus:ring-bambu-green/50 focus:border-bambu-green transition-colors"
                       placeholder={t('setup.confirmPasswordPlaceholder')}
-                      minLength={6}
                       autoComplete="new-password"
                     />
                   </div>
