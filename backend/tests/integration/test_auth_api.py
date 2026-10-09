@@ -70,7 +70,6 @@ class TestAuthSetupAPI:
         assert result["auth_enabled"] is True
         assert result["admin_created"] is True
 
-    ```python
     @pytest.mark.asyncio
     @pytest.mark.integration
     async def test_setup_weak_password_accepted_when_creating_new_admin(
