@@ -492,7 +492,6 @@ export function LoginPage() {
                 placeholder={t('login.resetPassword.newPasswordPlaceholder')}
                 autoFocus
                 autoComplete="new-password"
-                minLength={8}
               />
             </div>
 
