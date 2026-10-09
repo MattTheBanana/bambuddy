@@ -74,7 +74,6 @@ class TestAuthSetupAPI:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    
     async def test_setup_reenable_with_existing_admin_ignores_password(self, async_client: AsyncClient, db_session):
         """Re-enabling auth when an admin already exists must not reject the placeholder
         password the frontend still sends. Regression for the LDAP re-enable flow that
