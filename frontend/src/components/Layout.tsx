@@ -1265,7 +1265,7 @@ export function Layout() {
                       setChangePasswordLoading(false);
                     }
                   }}
-                  disabled={changePasswordLoading || !changePasswordData.currentPassword || !changePasswordData.newPassword || changePasswordData.newPassword !== changePasswordData.confirmPassword || changePasswordData.newPassword.length < 6}
+                  disabled={changePasswordLoading || !changePasswordData.currentPassword || !changePasswordData.newPassword || changePasswordData.newPassword !== changePasswordData.confirmPassword}
                 >
                   {changePasswordLoading ? (
                     <>
