@@ -1211,7 +1211,6 @@ export function Layout() {
                     className="w-full px-4 py-3 bg-bambu-dark-secondary border border-bambu-dark-tertiary rounded-lg text-white placeholder-bambu-gray focus:outline-none focus:ring-2 focus:ring-bambu-green/50 focus:border-bambu-green transition-colors"
                     placeholder={t('changePassword.newPasswordPlaceholder')}
                     autoComplete="new-password"
-                    minLength={6}
                   />
                 </div>
                 <div>
@@ -1229,7 +1228,6 @@ export function Layout() {
                     }`}
                     placeholder={t('changePassword.confirmPasswordPlaceholder')}
                     autoComplete="new-password"
-                    minLength={6}
                   />
                   {changePasswordData.confirmPassword && changePasswordData.newPassword !== changePasswordData.confirmPassword && (
                     <p className="text-red-700 dark:text-red-400 text-xs mt-1">{t('changePassword.passwordsDoNotMatch')}</p>
