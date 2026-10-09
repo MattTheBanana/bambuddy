@@ -89,7 +89,6 @@ class TestAuthSetupAPI:
         result = response.json()
         assert result["auth_enabled"] is True
         assert result["admin_created"] is True
-```
 
 
     @pytest.mark.asyncio
