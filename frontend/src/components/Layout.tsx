@@ -1252,10 +1252,6 @@ export function Layout() {
                       showToast(t('changePassword.passwordsDoNotMatch'), 'error');
                       return;
                     }
-                    if (changePasswordData.newPassword.length < 6) {
-                      showToast(t('changePassword.passwordTooShort'), 'error');
-                      return;
-                    }
                     setChangePasswordLoading(true);
                     try {
                       await api.changePassword(changePasswordData.currentPassword, changePasswordData.newPassword);
