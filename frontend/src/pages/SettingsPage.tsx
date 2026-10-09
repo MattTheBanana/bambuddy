@@ -7279,7 +7279,7 @@ export function SettingsPage() {
                 </Button>
                 <Button
                   onClick={handleCreateUser}
-                  disabled={createUserMutation.isPending || !userFormData.username || !userFormData.password || userFormData.password !== userFormData.confirmPassword !== null}
+                  disabled={createUserMutation.isPending || !userFormData.username || !userFormData.password || (userFormData.password !== null && userFormData.confirmPassword !== null)}
                 >
                   {createUserMutation.isPending ? (
                     <>
@@ -7499,7 +7499,7 @@ export function SettingsPage() {
                     updateUserMutation.isPending ||
                     !userFormData.username ||
                     (advancedAuthStatus?.advanced_auth_enabled && !userFormData.email) ||
-                    Boolean(!advancedAuthStatus?.advanced_auth_enabled && userFormData.password && (userFormData.password !== userFormData.confirmPassword !== null))
+                    Boolean(!advancedAuthStatus?.advanced_auth_enabled && userFormData.password && (userFormData.password !== null && userFormData.confirmPassword !== null))
                   }
                 >
                   {updateUserMutation.isPending ? (
