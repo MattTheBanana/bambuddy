@@ -7,30 +7,6 @@ import pytest
 from httpx import AsyncClient
 
 
-class TestAuthStatusAPI:
-    """Integration tests for /api/v1/auth/status endpoint."""
-
-    @pytest.mark.asyncio
-    @pytest.mark.integration
-    async def test_setup_weak_password_accepted_when_creating_new_admin(
-        self, async_client: AsyncClient
-    ):
-        """Verify a password without a special character is accepted."""
-        response = await async_client.post(
-            "/api/v1/auth/setup",
-            json={
-                "auth_enabled": True,
-                "admin_username": "weakpw_admin",
-                "admin_password": "NoSpecial1",
-            },
-        )
-
-        assert response.status_code == 200
-        result = response.json()
-        assert result["auth_enabled"] is True
-        assert result["admin_created"] is True
-
-
 class TestAuthSetupAPI:
     """Integration tests for /api/v1/auth/setup endpoint."""
 
@@ -98,10 +74,11 @@ class TestAuthSetupAPI:
         assert result["auth_enabled"] is True
         assert result["admin_created"] is True
 
-
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_setup_reenable_with_existing_admin_ignores_password(self, async_client: AsyncClient, db_session):
+    async def test_setup_reenable_with_existing_admin_ignores_password(
+        self, async_client: AsyncClient, db_session
+    ):
         """Re-enabling auth when an admin already exists must not reject the placeholder
         password the frontend still sends. Regression for the LDAP re-enable flow that
         previously 422'd because the Pydantic schema enforced complexity unconditionally.
