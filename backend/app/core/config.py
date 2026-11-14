@@ -112,6 +112,7 @@ class Settings(BaseSettings):
     # setting.
     slicer_api_url: str = "http://localhost:3003"
     bambu_studio_api_url: str = "http://localhost:3001"
+    wave_overhangs_api_url: str = "http://localhost:3004"
 
     class Config:
         env_file = ".env"
