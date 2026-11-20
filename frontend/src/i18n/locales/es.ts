@@ -11,6 +11,7 @@ export default {
     inventory: 'Filamento',
     finance: 'Finanzas',
     files: 'Gestor de archivos',
+    webSlicer: 'Cortador web',
     makerworld: 'MakerWorld',
     modelSources: 'Fuentes de modelos',
     notifications: 'Notificaciones',
