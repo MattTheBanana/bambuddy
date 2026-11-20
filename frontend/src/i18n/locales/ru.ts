@@ -10,6 +10,7 @@ export default {
     inventory: "Филамент",
     finance: "Финансы",
     files: "Файловый менеджер",
+    webSlicer: 'Веб-слайсер',
     makerworld: "MakerWorld",
     modelSources: "Источники моделей",
     notifications: "Уведомления",
