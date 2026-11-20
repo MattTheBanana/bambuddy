@@ -132,7 +132,7 @@ jobs:
       # all broken tests in one go.
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v6
 
@@ -169,9 +169,9 @@ jobs:
           # the suite's 1046s into shard 1 and 101s into shard 4 -- a 6.5x spread
           # that walked shard 1 into the old 10-minute timeout on a docs-only
           # commit. tests/.test_durations is committed so the split is balanced
-          # by measured time instead (1.01x spread). Shard test counts are
-          # lopsided by design once it is used: shard 4 takes thousands of fast
-          # unit tests, shard 1 keeps the slow integration ones.
+          # by measured time instead. Shard test counts are lopsided by design
+          # once that timing data is populated. Eight shards also limits the
+          # worst-case wall time while timing data is incomplete or stale.
           #
           # --durations-path must be explicit: pytest-split defaults it to
           # $CWD/.test_durations, and this job runs from backend/ while the
@@ -184,7 +184,7 @@ jobs:
             --tb=short \
             --timeout=60 --timeout-method=thread \
             -n auto \
-            --splits 4 --group ${{ matrix.shard }} \
+            --splits 8 --group ${{ matrix.shard }} \
             --durations-path tests/.test_durations
 
   backend-postgres-upgrade:
@@ -434,7 +434,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v6
 
@@ -472,7 +472,7 @@ jobs:
               --timeout=60 --timeout-method=thread \
               -p no:cacheprovider \
               -n auto \
-              --splits 4 --group ${{ matrix.shard }} \
+              --splits 8 --group ${{ matrix.shard }} \
               --durations-path backend/tests/.test_durations
 
   docker-test:
