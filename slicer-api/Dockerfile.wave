@@ -1,0 +1,12 @@
+# Optional Wave Overhangs-enabled OrcaSlicer sidecar.
+ARG SIDECAR_TAG=latest
+FROM ghcr.io/maziggy/orca-slicer-api:${SIDECAR_TAG}
+ARG WAVE_OVERHANGS_VERSION=0.4.0
+USER root
+RUN set -eu; \
+    url="https://github.com/dennisklappe/OrcaSlicer-WaveOverhangs/releases/download/v${WAVE_OVERHANGS_VERSION}/OrcaSlicerWaveOverhangs_Linux_AppImage_Ubuntu2404_V${WAVE_OVERHANGS_VERSION}.AppImage"; \
+    curl -fL --retry 10 --retry-all-errors --retry-delay 10 -o /tmp/wave.AppImage "$url"; \
+    chmod +x /tmp/wave.AppImage; cd /tmp; ./wave.AppImage --appimage-extract >/dev/null; \
+    mv /tmp/squashfs-root /app/wave-overhangs; rm -f /tmp/wave.AppImage; \
+    chmod -R a+rX /app/wave-overhangs; test -x /app/wave-overhangs/AppRun
+ENV ORCASLICER_PATH=/app/wave-overhangs/AppRun

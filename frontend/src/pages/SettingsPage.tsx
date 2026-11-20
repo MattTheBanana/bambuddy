@@ -5639,6 +5639,13 @@ export function SettingsPage() {
               )}
               {(localSettings.use_slicer_api ?? false) && (
                 <div>
+                  <label className="block text-sm text-bambu-gray mb-1">Wave Overhangs sidecar URL</label>
+                  <input type="text" value={localSettings.wave_overhangs_api_url ?? ''} onChange={(e) => updateSetting('wave_overhangs_api_url', e.target.value)} placeholder="http://localhost:3004" className="w-full px-3 py-2 bg-bambu-dark border border-bambu-dark-tertiary rounded-lg text-white focus:border-bambu-green focus:outline-none placeholder:text-bambu-gray/40" />
+                  <p className="text-xs text-bambu-gray mt-1">Optional experimental OrcaSlicer-WaveOverhangs service. Used only when its process option is enabled. Start with the wave Compose profile.</p>
+                </div>
+              )}
+              {(localSettings.use_slicer_api ?? false) && (
+                <div>
                   <label className="block text-sm text-bambu-gray mb-1">
                     {t('settings.slicerStallTimeout')}
                   </label>
