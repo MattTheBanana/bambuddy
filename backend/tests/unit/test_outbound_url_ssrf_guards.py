@@ -628,6 +628,7 @@ GUARDED_BODY_URLS = {
     ("AppSettingsUpdate", "ha_url"),
     ("AppSettingsUpdate", "obico_ml_url"),
     ("AppSettingsUpdate", "orcaslicer_api_url"),
+    ("AppSettingsUpdate", "wave_overhangs_api_url"),  # LAN_SERVICE_URL_SETTINGS validator
     ("AppSettingsUpdate", "spoolman_url"),  # assert_safe_spoolman_url at each consumer
     ("HATestConnectionRequest", "url"),  # homeassistant._validate_url
     ("RESTTestConnectionRequest", "url"),  # rest_smart_plug._validate_url

@@ -4428,6 +4428,10 @@ async def _run_slicer_with_fallback(
     if request.bed_type:
         presets["process"] = _patch_process_bed_type(presets["process"], request.bed_type)
 
+    # Resolve the preferred slicer before selecting the sidecar. Wave Overhangs
+    # bypasses this choice, but the value is still used by the bed-type guard below.
+    preferred = (await get_setting(db, "preferred_slicer")) or "bambu_studio"
+
     # Wave overhangs require the dedicated OrcaSlicer-WaveOverhangs binary.
     # Only route jobs to it when the explicit process option is enabled.
     wave_value = (request.process_overrides or {}).get("wave_overhangs", "0")
@@ -4442,7 +4446,6 @@ async def _run_slicer_with_fallback(
                 detail="Wave Overhangs sidecar is not configured. Set its URL in Settings -> Slicer.",
             )
     else:
-        preferred = (await get_setting(db, "preferred_slicer")) or "bambu_studio"
         if preferred == "orcaslicer":
             configured = await get_setting(db, "orcaslicer_api_url")
             api_url = (configured or app_settings.slicer_api_url).strip()
