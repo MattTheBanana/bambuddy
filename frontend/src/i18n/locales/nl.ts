@@ -11,6 +11,7 @@ export default {
     finance: 'Financiën',
     inventory: 'Filament',
     files: 'Bestandsbeheer',
+    webSlicer: 'Web-snijder',
     makerworld: 'MakerWorld',
     modelSources: 'Modelbronnen',
     notifications: 'Meldingen',
