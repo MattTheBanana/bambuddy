@@ -11,6 +11,7 @@ export default {
     finance: '财务',
     inventory: '耗材',
     files: '文件管理器',
+    webSlicer: '网页切片器',
     makerworld: 'MakerWorld',
     modelSources: '模型来源',
     notifications: '通知',
