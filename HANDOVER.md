@@ -80,3 +80,12 @@
 4. Add real G-code and 3MF-G-code output validation.
 5. Port and test Wave Overhangs integration.
 6. Append a dated development note here with every subsequent change.
+
+
+## Sync conflict update — 2026-11-20
+
+- PR #2 current compare is **515 commits upstream-only and 41 fork-only** (compare `sync/official-v1.3.1` to `main`); GitHub reports `mergeable=false`, `mergeable_state=dirty`. Earlier PR description counts were stale and have been corrected.
+- The 41 fork-only commits include intentional authentication changes. Preserve the behavior in fork `main`: password requirements were removed and login requirement can be disabled. Do not reintroduce mandatory password authentication. Audit backend auth schemas/routes/tests, frontend login/setup/users/settings pages, and any settings/API compatibility changes as a single feature.
+- Other fork-only files include library, slicer process schema/UI, and Wave/docker changes; reconcile them individually with upstream, not by force-pushing or wholesale copying old files over new upstream versions.
+- PR #2 remains draft and unresolved. GitHub connector exposes commit/file APIs but this session has no local git/network access for a real three-way conflict resolution or full test run. Do not mark this sync fixed or merge it until a conflict-resolved merge commit is created and tested in a git-capable environment.
+- PR #2 description now records the accurate counts, auth-preservation requirement, and pre-merge checklist.
