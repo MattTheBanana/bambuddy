@@ -461,10 +461,6 @@ export function LoginPage() {
         showToast(t('login.resetPassword.passwordsDoNotMatch'), 'error');
         return;
       }
-      if (newPassword.length < 8) {
-        showToast(t('login.resetPassword.passwordTooShort'), 'error');
-        return;
-      }
       resetPasswordMutation.mutate();
     };
 
@@ -496,7 +492,6 @@ export function LoginPage() {
                 placeholder={t('login.resetPassword.newPasswordPlaceholder')}
                 autoFocus
                 autoComplete="new-password"
-                minLength={8}
               />
             </div>
 

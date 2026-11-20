@@ -97,3 +97,12 @@
 - PR #2 remains unresolved: GitHub reports `mergeable=false`, `mergeable_state=dirty`; the fork main moved to `c66f6212d9b23140ca6d1b0ae52e7c13943cf361`, while sync branch head is `5944295438a9cfa2f083b0fbc400fd08d437c39f`. The compare shows diverged history (515 ahead / 41 behind). The available GitHub connector can inspect and edit files/refs but does not expose a conflict-aware rebase/merge operation or a local git checkout. Do not claim conflicts resolved or force-update the branch. Resolve with a real git merge/rebase preserving all 41 fork-only commits, then update PR #2.
 
 - Added `nav.webSlicer` translations for all locales checked by the repository's i18n parity gate (en, de, fr, it, ja, pt-BR, zh-CN, zh-TW). Other bundled locales continue to fall back to English for this new nav label until translated.
+
+
+## Upstream sync conflict resolution — 2026-11-20
+
+- PR #2 is now conflict-resolved with merge commit `b0254f51d7f07bf7b526174bc25e70dd930d6e12` (first parent `sync/official-v1.3.1` before resolution; second parent fork `main` at `c66f6212d9b23140ca6d1b0ae52e7c13943cf361`). GitHub reports PR #2 mergeable.
+- Ported fork-only changes onto the upstream v1.3.1 tree: relaxed password complexity/minimum-length checks, related auth tests and frontend validation, and the optional Wave Overhangs process setting, routing, configuration, and Docker sidecar.
+- Preserved upstream's local-login enable/disable setting. This does not remove the password field from password login.
+- The Web Slicer PR is stacked on this sync branch. Its branch is advanced with a merge commit so its diff against the new base remains limited to Web Slicer work.
+- Validation remains outstanding: frontend typecheck/build, backend tests, Docker build, end-to-end slicing and printer validation have not been run in this environment.

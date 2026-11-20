@@ -20,7 +20,7 @@ from backend.app.utils.printer_models import MAX_CHAMBER_TEMP_C
 # tests/unit/test_outbound_url_ssrf_guards.py can import the real list and
 # cannot drift from it. Any new outbound-URL setting belongs here (or, if it
 # must be reachable on the public internet, on the stricter OIDC guard).
-LAN_SERVICE_URL_SETTINGS = ("ha_url", "obico_ml_url", "orcaslicer_api_url", "bambu_studio_api_url")
+LAN_SERVICE_URL_SETTINGS = ("ha_url", "obico_ml_url", "orcaslicer_api_url", "bambu_studio_api_url", "wave_overhangs_api_url")
 
 # ``docker_compose_dir`` is unusual among the string settings: it is not
 # consumed by Bambuddy at all, it is interpolated into a shell command that
@@ -370,6 +370,7 @@ class AppSettings(BaseModel):
         default="",
         description="BambuStudio sidecar URL (e.g. http://localhost:3001). Empty falls back to the BAMBU_STUDIO_API_URL env var.",
     )
+    wave_overhangs_api_url: str = Field(default="", description="Optional OrcaSlicer-WaveOverhangs sidecar URL; defaults to http://localhost:3004.")
     # How long to keep waiting on a slice that isn't finishing. Measured against
     # the sidecar's progress channel, not total elapsed time — a heavy model can
     # legitimately slice for half an hour, and a wall-clock ceiling cannot tell
@@ -831,6 +832,7 @@ class AppSettingsUpdate(BaseModel):
     use_slicer_api: bool | None = None
     orcaslicer_api_url: str | None = None
     bambu_studio_api_url: str | None = None
+    wave_overhangs_api_url: str | None = None
     slicer_stall_timeout_minutes: int | None = Field(default=None, ge=1, le=240)
     prometheus_enabled: bool | None = None
     prometheus_token: str | None = None

@@ -4428,22 +4428,32 @@ async def _run_slicer_with_fallback(
     if request.bed_type:
         presets["process"] = _patch_process_bed_type(presets["process"], request.bed_type)
 
-    # Slicer routing — pick the sidecar URL by preferred_slicer.
-    # The per-install URL setting (Settings UI → Slicer card) wins; an
-    # empty value falls back to the SLICER_API_URL / BAMBU_STUDIO_API_URL
-    # env defaults defined in core/config.py.
-    preferred = (await get_setting(db, "preferred_slicer")) or "bambu_studio"
-    if preferred == "orcaslicer":
-        configured = await get_setting(db, "orcaslicer_api_url")
-        api_url = (configured or app_settings.slicer_api_url).strip()
-    elif preferred == "bambu_studio":
-        configured = await get_setting(db, "bambu_studio_api_url")
-        api_url = (configured or app_settings.bambu_studio_api_url).strip()
+    # Wave overhangs require the dedicated OrcaSlicer-WaveOverhangs binary.
+    # Only route jobs to it when the explicit process option is enabled.
+    wave_value = (request.process_overrides or {}).get("wave_overhangs", "0")
+    wave_enabled = str(wave_value).strip().lower() in {"1", "true", "yes", "on"}
+    wave_enabled = wave_enabled or "wave_overhangs" in (request.design_overrides or [])
+    if wave_enabled:
+        configured = await get_setting(db, "wave_overhangs_api_url")
+        api_url = (configured or app_settings.wave_overhangs_api_url).strip()
+        if not api_url:
+            raise HTTPException(
+                status_code=503,
+                detail="Wave Overhangs sidecar is not configured. Set its URL in Settings -> Slicer.",
+            )
     else:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Unknown preferred_slicer setting: '{preferred}'. Expected 'orcaslicer' or 'bambu_studio'.",
-        )
+        preferred = (await get_setting(db, "preferred_slicer")) or "bambu_studio"
+        if preferred == "orcaslicer":
+            configured = await get_setting(db, "orcaslicer_api_url")
+            api_url = (configured or app_settings.slicer_api_url).strip()
+        elif preferred == "bambu_studio":
+            configured = await get_setting(db, "bambu_studio_api_url")
+            api_url = (configured or app_settings.bambu_studio_api_url).strip()
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unknown preferred_slicer setting: '{preferred}'. Expected 'orcaslicer' or 'bambu_studio'.",
+            )
 
     # Note: an earlier version of this code stripped Metadata/project_settings.
     # config + model_settings.config + slice_info.config + cut_information.xml

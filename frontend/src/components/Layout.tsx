@@ -1333,10 +1333,6 @@ export function Layout() {
                       showToast(t('changePassword.passwordsDoNotMatch'), 'error');
                       return;
                     }
-                    if (changePasswordData.newPassword.length < 6) {
-                      showToast(t('changePassword.passwordTooShort'), 'error');
-                      return;
-                    }
                     setChangePasswordLoading(true);
                     try {
                       await api.changePassword(changePasswordData.currentPassword, changePasswordData.newPassword);
@@ -1350,7 +1346,7 @@ export function Layout() {
                       setChangePasswordLoading(false);
                     }
                   }}
-                  disabled={changePasswordLoading || !changePasswordData.currentPassword || !changePasswordData.newPassword || changePasswordData.newPassword !== changePasswordData.confirmPassword || changePasswordData.newPassword.length < 6}
+                  disabled={changePasswordLoading || !changePasswordData.currentPassword || !changePasswordData.newPassword || changePasswordData.newPassword !== changePasswordData.confirmPassword}
                 >
                   {changePasswordLoading ? (
                     <>

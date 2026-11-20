@@ -22,10 +22,17 @@ cp .env.example .env       # edit ports if you like
 docker compose up -d
 curl http://localhost:3003/health
 
-# Both slicers:
+# Both standard slicers:
 docker compose --profile bambu up -d
 curl http://localhost:3001/health   # bambu-studio-api
 curl http://localhost:3003/health   # orca-slicer-api
+
+# Optional experimental Wave Overhangs engine:
+docker compose --profile wave up -d --build
+curl http://localhost:3004/health   # wave-overhangs-api
+
+# All three:
+docker compose --profile bambu --profile wave up -d --build
 ```
 
 First start pulls pre-built images from GHCR (~110 MB OrcaSlicer,
@@ -49,6 +56,7 @@ native, and a stopgap until native ARM64 images ship. See
 |---|---|---|
 | `orca-slicer-api` | **3003** | Bambuddy's virtual-printer feature reserves 3000 and 3002 |
 | `bambu-studio-api` | **3001** | First free port in that range |
+| `wave-overhangs-api` | **3004** | Optional OrcaSlicer-WaveOverhangs fork; built locally |
 
 Override via `ORCA_API_PORT` / `BAMBU_API_PORT` in `.env`.
 
@@ -62,8 +70,17 @@ In the Bambuddy UI: **Settings → Slicer**:
   Default values match the Compose defaults:
   - OrcaSlicer: `http://localhost:3003`
   - Bambu Studio: `http://localhost:3001`
+  - Wave Overhangs: `http://localhost:3004` (optional; used only when the
+    **Use wave overhangs (Experimental)** process option is enabled)
 
-Leaving the URL field blank uses the `SLICER_API_URL` /
+Start the experimental service with `docker compose --profile wave up -d --build`.
+Normal slices continue to use the selected OrcaSlicer or Bambu Studio sidecar.
+The Wave fork is experimental; inspect the sliced G-code preview and validate
+settings with your own printer and filament before printing. The Linux AppImage
+currently targets x86_64; ARM64 deployments require amd64 emulation or a remote
+x86_64 host.
+
+Leaving the standard URL fields blank uses the `SLICER_API_URL` /
 `BAMBU_STUDIO_API_URL` environment defaults from Bambuddy's config.
 
 ## Where the images live
@@ -147,10 +164,17 @@ echo 'COMPOSE_FILE=docker-compose.yml:docker-compose.arm64.yml' >> .env
 docker compose up -d
 curl http://localhost:3003/health
 
-# Both slicers:
+# Both standard slicers:
 docker compose --profile bambu up -d
 curl http://localhost:3001/health   # bambu-studio-api
 curl http://localhost:3003/health   # orca-slicer-api
+
+# Optional experimental Wave Overhangs engine:
+docker compose --profile wave up -d --build
+curl http://localhost:3004/health   # wave-overhangs-api
+
+# All three:
+docker compose --profile bambu --profile wave up -d --build
 ```
 
 That `COMPOSE_FILE` line is what makes the rest of this README work

@@ -25,3 +25,6 @@ services:
 
   bambu-studio-api:
     platform: linux/amd64
+
+  wave-overhangs-api:
+    platform: linux/amd64
