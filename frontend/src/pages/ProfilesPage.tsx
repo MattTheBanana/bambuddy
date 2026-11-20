@@ -1856,7 +1856,7 @@ function CreatePresetModal({
           <div className="flex border-b border-bambu-dark-tertiary max-[640px]:flex-wrap max-[640px]:items-center">
             <button
               onClick={() => setActiveTab('common')}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
+              className={`flex shrink-0 items-center gap-2 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-colors border-b-2 -mb-px ${
                 activeTab === 'common' ? 'text-bambu-green border-bambu-green' : 'text-bambu-gray hover:text-white border-transparent'
               }`}
             >
@@ -1865,7 +1865,7 @@ function CreatePresetModal({
             </button>
             <button
               onClick={() => setActiveTab('fields')}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
+              className={`flex shrink-0 items-center gap-2 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-colors border-b-2 -mb-px ${
                 activeTab === 'fields' ? 'text-bambu-green border-bambu-green' : 'text-bambu-gray hover:text-white border-transparent'
               }`}
             >
@@ -1874,7 +1874,7 @@ function CreatePresetModal({
             </button>
             <button
               onClick={() => setActiveTab('json')}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
+              className={`flex shrink-0 items-center gap-2 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-colors border-b-2 -mb-px ${
                 activeTab === 'json' ? 'text-bambu-green border-bambu-green' : 'text-bambu-gray hover:text-white border-transparent'
               }`}
             >
@@ -2921,10 +2921,10 @@ export function ProfilesPage() {
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex border-b border-bambu-dark-tertiary mb-6">
+      <div className="flex flex-wrap gap-x-1 border-b border-bambu-dark-tertiary mb-6">
         <button
           onClick={() => setActiveTab('cloud')}
-          className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
+          className={`flex shrink-0 items-center gap-2 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-colors border-b-2 -mb-px ${
             activeTab === 'cloud'
               ? 'text-bambu-green border-bambu-green'
               : 'text-bambu-gray hover:text-white border-transparent'
@@ -2935,7 +2935,7 @@ export function ProfilesPage() {
         </button>
         <button
           onClick={() => setActiveTab('orca_cloud')}
-          className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
+          className={`flex shrink-0 items-center gap-2 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-colors border-b-2 -mb-px ${
             activeTab === 'orca_cloud'
               ? 'text-bambu-green border-bambu-green'
               : 'text-bambu-gray hover:text-white border-transparent'
@@ -2946,7 +2946,7 @@ export function ProfilesPage() {
         </button>
         <button
           onClick={() => setActiveTab('local')}
-          className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
+          className={`flex shrink-0 items-center gap-2 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-colors border-b-2 -mb-px ${
             activeTab === 'local'
               ? 'text-bambu-green border-bambu-green'
               : 'text-bambu-gray hover:text-white border-transparent'
@@ -2957,7 +2957,7 @@ export function ProfilesPage() {
         </button>
         <button
           onClick={() => setActiveTab('kprofiles')}
-          className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
+          className={`flex shrink-0 items-center gap-2 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-colors border-b-2 -mb-px ${
             activeTab === 'kprofiles'
               ? 'text-bambu-green border-bambu-green'
               : 'text-bambu-gray hover:text-white border-transparent'
