@@ -89,3 +89,13 @@
 - Other fork-only files include library, slicer process schema/UI, and Wave/docker changes; reconcile them individually with upstream, not by force-pushing or wholesale copying old files over new upstream versions.
 - PR #2 remains draft and unresolved. GitHub connector exposes commit/file APIs but this session has no local git/network access for a real three-way conflict resolution or full test run. Do not mark this sync fixed or merge it until a conflict-resolved merge commit is created and tested in a git-capable environment.
 - PR #2 description now records the accurate counts, auth-preservation requirement, and pre-merge checklist.
+
+
+## Resolution update — 2026-11-20
+
+- PR #2 conflicts were resolved in merge commit `b0254f51d7f07bf7b526174bc25e70dd930d6e12`. It has the upstream sync branch as first parent and fork `main` at `c66f6212d9b23140ca6d1b0ae52e7c13943cf361` as second parent. GitHub reports PR #2 mergeable.
+- Preserved the fork's removal of password complexity and minimum-length validation (password login itself remains password-based), associated auth frontend changes/tests, and Wave Overhangs process option, sidecar routing/configuration and Docker Compose files.
+- Preserved upstream's `local_login_enabled` control and other upstream auth changes.
+- Kept upstream's current CI workflow. The conflicting slicer library/config/schema/settings files were reconciled by applying the fork-specific Wave changes to the upstream versions rather than replacing those files wholesale.
+- PR #3 is stacked on this branch. Its head merge commit is `67b2ffb004beb3ba506fd3bd81228604b5df7d31`; its diff against this base is limited to Web Slicer UI/route/locale files.
+- No local tests or builds were run. GitHub Actions workflow runs and commit statuses were empty at the time checked. Required validation: backend tests, frontend lint/typecheck/build, Docker builds, upload-preview-slice/download integration, and output/printer validation.
