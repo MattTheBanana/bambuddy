@@ -833,14 +833,22 @@ class BambuCloudService:
                 params={"version": version, "public": "false"},
             )
 
-            data = _cloud_json(response)
-
             if await self._note_response(response):
                 raise BambuCloudAuthError("Bambu Cloud session expired")
-            if response.status_code == 200:
-                return data
+            if response.status_code != 200:
+                # Preserve Bambu's response details in the error so API
+                # contract changes and account/region restrictions are
+                # diagnosable from the app's failed-to-load message.
+                body = (response.text or "")[:500]
+                raise BambuCloudError(
+                    f"Failed to get settings: HTTP {response.status_code} {body}",
+                    status_code=response.status_code,
+                )
 
-            raise BambuCloudError(f"Failed to get settings: {response.status_code}")
+            data = _cloud_json(response)
+            if not isinstance(data, dict):
+                raise BambuCloudError("Unexpected Bambu Cloud settings response: expected an object")
+            return data
 
         except httpx.RequestError as e:
             raise BambuCloudError(f"Request failed: {e}")

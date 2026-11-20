@@ -198,6 +198,29 @@ async def set_kprofile(
         raise HTTPException(500, f"Printer rejected the K-profile: {detail}")
     confirmed = detail != CALI_ACK_UNCONFIRMED
 
+    # A successful MQTT publish/ack is not enough to prove that the printer
+    # persisted a new calibration row. Read the table back before reporting
+    # success; some firmware accepts the command but silently drops invalid
+    # filament/nozzle combinations.
+    if not is_edit:
+        saved = False
+        for delay in (0.5, 1.0, 1.5):
+            await asyncio.sleep(delay)
+            try:
+                table = await client.get_kprofiles(nozzle_diameter=profile.nozzle_diameter)
+            except KProfileReadError as e:
+                logger.warning("[API] Add: could not verify K-profile table: %s", e)
+                continue
+            if any(_is_saved_profile(stored, profile) for stored in table):
+                saved = True
+                confirmed = True
+                break
+        if not saved:
+            raise HTTPException(
+                502,
+                "The printer did not save the K-profile. Refresh the list and check the printer before trying again.",
+            )
+
     if is_edit and not is_dual_nozzle:
         # The edit deleted the profile and added it again: read the table back
         # to see the edited one landed. A read the printer did not answer
@@ -299,9 +322,27 @@ async def set_kprofiles_batch(
     if not ok:
         raise HTTPException(500, f"Printer rejected the K-profiles: {detail}")
 
+    # Verify every requested extruder row is actually present. A batch ack
+    # only confirms receipt of the MQTT command, not persistence of each row.
+    saved_profiles = None
+    for delay in (0.5, 1.0, 1.5):
+        await asyncio.sleep(delay)
+        try:
+            saved_profiles = await client.get_kprofiles(nozzle_diameter=nozzle_diameter)
+        except KProfileReadError as e:
+            logger.warning("[API] Batch add: could not verify K-profile table: %s", e)
+            continue
+        if all(any(_is_saved_profile(stored, requested) for stored in saved_profiles) for requested in profiles):
+            break
+    else:
+        raise HTTPException(
+            502,
+            "The printer did not save all K-profiles. Refresh the list and check the printer before trying again.",
+        )
+
     return {
         "success": True,
-        "confirmed": detail != CALI_ACK_UNCONFIRMED,
+        "confirmed": True,
         "message": f"Added {len(profiles)} K-profiles",
     }
 
