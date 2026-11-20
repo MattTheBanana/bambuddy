@@ -28,6 +28,7 @@ const MaintenancePage = lazyPage(() => import('./pages/MaintenancePage'), 'Maint
 const ProjectsPage = lazyPage(() => import('./pages/ProjectsPage'), 'ProjectsPage');
 const ProjectDetailPage = lazyPage(() => import('./pages/ProjectDetailPage'), 'ProjectDetailPage');
 const FileManagerPage = lazyPage(() => import('./pages/FileManagerPage'), 'FileManagerPage');
+const WebSlicerPage = lazyPage(() => import('./pages/WebSlicerPage'), 'WebSlicerPage');
 const LibraryTrashPage = lazyPage(() => import('./pages/LibraryTrashPage'), 'LibraryTrashPage');
 const CameraPage = lazyPage(() => import('./pages/CameraPage'), 'CameraPage');
 const CamWallPage = lazyPage(() => import('./pages/CamWallPage'), 'CamWallPage');
@@ -248,6 +249,7 @@ function App() {
                   <Route path="projects/:id" element={<ProjectDetailPage />} />
                   <Route path="inventory" element={<InventoryPage />} />
                   <Route path="files" element={<FileManagerPage />} />
+                  <Route path="web-slicer" element={<WebSlicerPage />} />
                   <Route path="files/trash" element={<LibraryTrashPage />} />
                   <Route path="model-sources" element={<PermissionRoute permission={['makerworld:view', 'manyfold:view']}><ModelSourcesPage /></PermissionRoute>} />
                   {/* The page was MakerWorld-only until Manyfold joined it (#1471); old links and bookmarks still land on that tab. */}
