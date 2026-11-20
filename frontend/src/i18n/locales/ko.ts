@@ -10,6 +10,7 @@ export default {
     inventory: '필라멘트',
     finance: '재무',
     files: '파일 관리자',
+    webSlicer: '웹 슬라이서',
     makerworld: 'MakerWorld',
     modelSources: '모델 소스',
     notifications: '알림',
