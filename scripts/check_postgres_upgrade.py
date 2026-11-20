@@ -218,15 +218,17 @@ asyncio.run(database.init_db())
 """
 
 
-def newest_stable_release() -> str:
+def release_tags() -> list[str]:
+    """Stable release tags available in this checkout, newest first."""
     tags = subprocess.run(
         ["git", "tag", "--list", "v*", "--sort=-v:refname"], cwd=REPO, check=True, capture_output=True, text=True
     ).stdout.split()
-    stable = [t for t in tags if re.fullmatch(r"v\d+(\.\d+)+", t)]
-    if not stable:
-        sys.exit("no release tags found; fetch them (git fetch --tags)")
-    return stable[0]
+    return [tag for tag in tags if re.fullmatch(r"v\d+(\.\d+)+", tag)]
 
+
+def newest_stable_release() -> str | None:
+    """The newest stable release, or None when this repository has no release tags."""
+    return next(iter(release_tags()), None)
 
 def extract_release(tag: str, into: Path) -> Path:
     """The release's backend/ as a directory to run init_db from (git archive, read-only)."""
@@ -382,13 +384,33 @@ def main() -> int:
         "--from-release", action="append", help=f"start release(s); default {FIRST_PG_RELEASE} and the newest stable"
     )
     args = parser.parse_args()
-    releases = args.from_release or sorted({FIRST_PG_RELEASE, newest_stable_release()})
+    tags = set(release_tags())
+    if args.from_release:
+        releases = args.from_release
+        missing = sorted(set(releases) - tags)
+        if missing:
+            sys.exit("requested release tag(s) are missing: " + ", ".join(missing))
+        scenarios = [scenario for scenario in SCENARIOS if all(tag in tags for tag in scenario.chain)]
+    else:
+        newest = newest_stable_release()
+        releases = sorted(({FIRST_PG_RELEASE, newest} - {None}) & tags)
+        scenarios = [scenario for scenario in SCENARIOS if all(tag in tags for tag in scenario.chain)]
+        if not tags:
+            print(
+                "WARNING: no stable release tags are present; historical upgrade comparisons and "
+                "release-dependent data scenarios are skipped. Fresh-install/restart checks will still run."
+            )
+        elif FIRST_PG_RELEASE not in tags:
+            print(
+                f"WARNING: {FIRST_PG_RELEASE} is not present; comparisons from that release and "
+                "scenarios requiring it are skipped."
+            )
     admin_url = with_database(args.url, urlsplit(args.url).path.lstrip("/") or "postgres")
 
     databases = (
         {"fresh": "bambuddy_check_fresh"}
         | {r: "bambuddy_check_" + re.sub(r"\W", "_", r) for r in releases}
-        | {s.name: f"bambuddy_check_scenario_{i}" for i, s in enumerate(SCENARIOS)}
+        | {s.name: f"bambuddy_check_scenario_{i}" for i, s in enumerate(scenarios)}
     )
     asyncio.run(_admin(admin_url, *(f"DROP DATABASE IF EXISTS {db}" for db in databases.values())))
     asyncio.run(_admin(admin_url, *(f"CREATE DATABASE {db}" for db in databases.values())))
@@ -405,7 +427,7 @@ def main() -> int:
                 found[release] = drift(fresh, upgraded)
                 print(f"{release}: upgrade ok, {len(found[release])} object(s) differ from a fresh install")
 
-            for scenario in SCENARIOS:
+            for scenario in scenarios:
                 url = with_database(args.url, databases[scenario.name], "asyncpg")
                 scenario_problems = run_scenario(scenario, url, Path(tmp))
                 problems += scenario_problems
