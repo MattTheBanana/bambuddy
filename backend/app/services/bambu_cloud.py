@@ -828,7 +828,9 @@ class BambuCloudService:
             response = await self._client.get(
                 f"{self.base_url}/v1/iot-service/api/slicer/setting",
                 headers=self._get_headers(),
-                params={"version": version},
+                # Match Bambu Studio's preset-sync request: private user presets
+                # only. Bundled stock presets are supplied by the local slicer.
+                params={"version": version, "public": "false"},
             )
 
             data = _cloud_json(response)
