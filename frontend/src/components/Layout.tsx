@@ -51,6 +51,7 @@ export const defaultNavItems: NavItem[] = [
   { id: 'queue', to: '/queue', icon: ListOrdered, labelKey: 'nav.queue' },
   { id: 'projects', to: '/projects', icon: FolderKanban, labelKey: 'nav.projects' },
   { id: 'files', to: '/files', icon: FolderOpen, labelKey: 'nav.files' },
+  { id: 'web-slicer', to: '/web-slicer', icon: Scissors, labelKey: 'nav.webSlicer' },
   // Id kept from when the page was MakerWorld-only, so saved sidebar orders and hidden items still apply.
   { id: 'makerworld', to: '/model-sources', icon: Globe, labelKey: 'nav.modelSources' },
   { id: 'profiles', to: '/profiles', icon: Cloud, labelKey: 'nav.profiles' },
@@ -362,6 +363,7 @@ export function Layout() {
       inventory: 'inventory:read',
       finance: 'cost_centers:read_own',
       files: ['library:read', 'library:read_own', 'library:read_all'],
+      'web-slicer': 'library:upload',
       makerworld: ['makerworld:view', 'manyfold:view'],
       settings: 'settings:read',
       // The user-email-preferences API requires notifications:user_email, so
