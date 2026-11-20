@@ -376,7 +376,10 @@ class AppSettings(BaseModel):
         default="",
         description="BambuStudio sidecar URL (e.g. http://localhost:3001). Empty falls back to the BAMBU_STUDIO_API_URL env var.",
     )
-    wave_overhangs_api_url: str = Field(default="", description="Optional OrcaSlicer-WaveOverhangs sidecar URL; defaults to http://localhost:3004.")
+    wave_overhangs_api_url: str = Field(
+        default="",
+        description="Optional OrcaSlicer-WaveOverhangs sidecar URL; defaults to http://localhost:3004.",
+    )
     # How long to keep waiting on a slice that isn't finishing. Measured against
     # the sidecar's progress channel, not total elapsed time — a heavy model can
     # legitimately slice for half an hour, and a wall-clock ceiling cannot tell
