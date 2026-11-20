@@ -6,7 +6,6 @@ import { api } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 import { formatDateOnly } from '../utils/date';
 import { getCurrencySymbol, SUPPORTED_CURRENCIES } from '../utils/currency';
-import { checkPasswordComplexity } from '../utils/password';
 import { fleetAudience, sponsorHref } from '../utils/fleetAudience';
 import { PRESET_CATEGORIES, parsePresetTriple } from '../utils/temperatureFanPresets';
 import { CALIBRATION_MODES, CALIBRATION_MODE_ACTIVE, CALIBRATION_MODE_INACTIVE } from '../utils/calibrationMode';
@@ -983,18 +982,6 @@ export function SettingsPage() {
         showToast(t('settings.toast.passwordsDoNotMatch'), 'error');
         return;
       }
-      const complexityIssue = checkPasswordComplexity(userFormData.password);
-      if (complexityIssue) {
-        const issueToKey = {
-          tooShort: 'settings.toast.passwordTooShort',
-          needsUppercase: 'settings.toast.passwordNeedsUppercase',
-          needsLowercase: 'settings.toast.passwordNeedsLowercase',
-          needsDigit: 'settings.toast.passwordNeedsDigit',
-          needsSpecial: 'settings.toast.passwordNeedsSpecial',
-        } as const;
-        showToast(t(issueToKey[complexityIssue]), 'error');
-        return;
-      }
     }
 
     createUserMutation.mutate({
@@ -1010,18 +997,6 @@ export function SettingsPage() {
     if (userFormData.password) {
       if (userFormData.password !== userFormData.confirmPassword) {
         showToast(t('settings.toast.passwordsDoNotMatch'), 'error');
-        return;
-      }
-      const complexityIssue = checkPasswordComplexity(userFormData.password);
-      if (complexityIssue) {
-        const issueToKey = {
-          tooShort: 'settings.toast.passwordTooShort',
-          needsUppercase: 'settings.toast.passwordNeedsUppercase',
-          needsLowercase: 'settings.toast.passwordNeedsLowercase',
-          needsDigit: 'settings.toast.passwordNeedsDigit',
-          needsSpecial: 'settings.toast.passwordNeedsSpecial',
-        } as const;
-        showToast(t(issueToKey[complexityIssue]), 'error');
         return;
       }
     }
@@ -1341,6 +1316,7 @@ export function SettingsPage() {
       (baseline.orcaslicer_api_url ?? '') !== (localSettings.orcaslicer_api_url ?? '') ||
       (baseline.slicer_stall_timeout_minutes ?? 15) !== (localSettings.slicer_stall_timeout_minutes ?? 15) ||
       (baseline.bambu_studio_api_url ?? '') !== (localSettings.bambu_studio_api_url ?? '') ||
+      (baseline.wave_overhangs_api_url ?? '') !== (localSettings.wave_overhangs_api_url ?? '') ||
       baseline.prometheus_enabled !== localSettings.prometheus_enabled ||
       baseline.prometheus_token !== localSettings.prometheus_token ||
       (baseline.user_notifications_enabled ?? true) !== (localSettings.user_notifications_enabled ?? true) ||
@@ -1470,6 +1446,7 @@ export function SettingsPage() {
         orcaslicer_api_url: localSettings.orcaslicer_api_url,
         slicer_stall_timeout_minutes: localSettings.slicer_stall_timeout_minutes,
         bambu_studio_api_url: localSettings.bambu_studio_api_url,
+        wave_overhangs_api_url: localSettings.wave_overhangs_api_url,
         prometheus_enabled: localSettings.prometheus_enabled,
         prometheus_token: localSettings.prometheus_token,
         user_notifications_enabled: localSettings.user_notifications_enabled,
@@ -5870,6 +5847,19 @@ export function SettingsPage() {
               )}
               {(localSettings.use_slicer_api ?? false) && (
                 <div>
+                  <label className="block text-sm text-bambu-gray mb-1">Wave Overhangs sidecar URL</label>
+                  <input
+                    type="text"
+                    value={localSettings.wave_overhangs_api_url ?? ''}
+                    onChange={(e) => updateSetting('wave_overhangs_api_url', e.target.value)}
+                    placeholder="http://localhost:3004"
+                    className="w-full px-3 py-2 bg-bambu-dark border border-bambu-dark-tertiary rounded-lg text-white focus:border-bambu-green focus:outline-none placeholder:text-bambu-gray/40"
+                  />
+                  <p className="text-xs text-bambu-gray mt-1">Optional experimental OrcaSlicer-WaveOverhangs service. Used only when its process option is enabled.</p>
+                </div>
+              )}
+              {(localSettings.use_slicer_api ?? false) && (
+                <div>
                   <label className="block text-sm text-bambu-gray mb-1">
                     {t('settings.slicerStallTimeout')}
                   </label>
@@ -7548,7 +7538,7 @@ export function SettingsPage() {
                 </Button>
                 <Button
                   onClick={handleCreateUser}
-                  disabled={createUserMutation.isPending || !userFormData.username || !userFormData.password || userFormData.password !== userFormData.confirmPassword || checkPasswordComplexity(userFormData.password) !== null}
+                  disabled={createUserMutation.isPending || !userFormData.username || !userFormData.password || userFormData.password !== userFormData.confirmPassword}
                 >
                   {createUserMutation.isPending ? (
                     <>
@@ -7774,7 +7764,7 @@ export function SettingsPage() {
                     updateUserMutation.isPending ||
                     !userFormData.username ||
                     (advancedAuthStatus?.advanced_auth_enabled && !userFormData.email) ||
-                    Boolean(!advancedAuthStatus?.advanced_auth_enabled && userFormData.password && (userFormData.password !== userFormData.confirmPassword || checkPasswordComplexity(userFormData.password) !== null))
+                    Boolean(!advancedAuthStatus?.advanced_auth_enabled && userFormData.password && (userFormData.password !== userFormData.confirmPassword))
                   }
                 >
                   {updateUserMutation.isPending ? (

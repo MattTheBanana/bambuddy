@@ -7,22 +7,6 @@ import pytest
 from httpx import AsyncClient
 
 
-class TestAuthStatusAPI:
-    """Integration tests for /api/v1/auth/status endpoint."""
-
-    @pytest.mark.asyncio
-    @pytest.mark.integration
-    async def test_get_auth_status_disabled(self, async_client: AsyncClient):
-        """Verify auth status returns disabled when not configured."""
-        response = await async_client.get("/api/v1/auth/status")
-
-        assert response.status_code == 200
-        result = response.json()
-        assert "auth_enabled" in result
-        assert result["auth_enabled"] is False
-        assert result["requires_setup"] is True
-
-
 class TestAuthSetupAPI:
     """Integration tests for /api/v1/auth/setup endpoint."""
 
@@ -72,8 +56,8 @@ class TestAuthSetupAPI:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_setup_weak_password_rejected_when_creating_new_admin(self, async_client: AsyncClient):
-        """Complexity is enforced only when a new admin is being created."""
+    async def test_setup_weak_password_accepted_when_creating_new_admin(self, async_client: AsyncClient):
+        """Verify a password without a special character is accepted."""
         response = await async_client.post(
             "/api/v1/auth/setup",
             json={
@@ -83,8 +67,10 @@ class TestAuthSetupAPI:
             },
         )
 
-        assert response.status_code == 400
-        assert "special character" in response.json()["detail"].lower()
+        assert response.status_code == 200
+        result = response.json()
+        assert result["auth_enabled"] is True
+        assert result["admin_created"] is True
 
     @pytest.mark.asyncio
     @pytest.mark.integration

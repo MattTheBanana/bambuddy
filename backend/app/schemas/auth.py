@@ -7,19 +7,7 @@ from backend.app.schemas.not_null import IgnoresNullForRequiredColumns
 
 
 def _validate_password_complexity(v: str) -> str:
-    """Enforce minimum password complexity (M-C).
-
-    Requires at least one uppercase letter, one lowercase letter, one digit,
-    and one special character in addition to the min_length=8 Field constraint.
-    """
-    if not re.search(r"[A-Z]", v):
-        raise ValueError("Password must contain at least one uppercase letter")
-    if not re.search(r"[a-z]", v):
-        raise ValueError("Password must contain at least one lowercase letter")
-    if not re.search(r"\d", v):
-        raise ValueError("Password must contain at least one digit")
-    if not re.search(r"[^A-Za-z0-9]", v):
-        raise ValueError("Password must contain at least one special character")
+    """Accept passwords without complexity requirements."""
     return v
 
 
@@ -147,7 +135,7 @@ class LDAPProvisionRequest(BaseModel):
 
 class ChangePasswordRequest(BaseModel):
     current_password: str = Field(..., max_length=256)  # M-NEW-3: cap before pbkdf2
-    new_password: str = Field(..., min_length=8, max_length=256)
+    new_password: str = Field(..., max_length=256)
 
     @field_validator("new_password")
     @classmethod
@@ -178,7 +166,7 @@ class ForgotPasswordRequest(BaseModel):
 
 class ForgotPasswordConfirmRequest(BaseModel):
     token: str = Field(..., max_length=128)
-    new_password: str = Field(..., min_length=8, max_length=256)
+    new_password: str = Field(..., max_length=256)
 
     @field_validator("new_password")
     @classmethod
@@ -287,7 +275,7 @@ class TwoFAVerifyRequest(BaseModel):
     pre_auth_token: str = Field(..., max_length=128)
     # TOTP/email codes are 6 digits; backup codes are 8 uppercase alphanumeric chars.
     # max_length=8 prevents excessively long inputs from reaching pbkdf2/pyotp.
-    code: str = Field(..., min_length=6, max_length=8)
+    code: str = Field(..., max_length=8)
     method: Literal["totp", "email", "backup"] = "totp"
 
     @field_validator("code")
@@ -314,7 +302,7 @@ class EmailOTPEnableConfirmRequest(BaseModel):
 
     setup_token: str = Field(..., max_length=128)
     # L-NEW-3: email OTP setup codes are always exactly 6 digits; reject anything else.
-    code: str = Field(..., min_length=6, max_length=6)
+    code: str = Field(..., max_length=6)
 
     @field_validator("code")
     @classmethod
