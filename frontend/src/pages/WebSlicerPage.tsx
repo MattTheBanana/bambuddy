@@ -86,7 +86,7 @@ export function WebSlicerPage() {
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4" />}
             Choose model
           </button>
-          <input ref={inputRef} type="file" accept={ACCEPTED} onChange={onInputChange} className="hidden" />
+          <input ref={inputRef} type="file" accept="*/*" onChange={onInputChange} className="hidden" />
           {!canUpload && <p className="mt-3 text-xs text-amber-300">Library upload permission is required.</p>}
         </div>
 
