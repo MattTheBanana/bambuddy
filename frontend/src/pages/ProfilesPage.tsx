@@ -2874,7 +2874,7 @@ export function ProfilesPage() {
     queryFn: api.getPrinters,
   });
 
-  const { data: settings, isLoading: settingsLoading, refetch: refetchSettings, dataUpdatedAt } = useQuery({
+  const { data: settings, isLoading: settingsLoading, refetch: refetchSettings, dataUpdatedAt, error: settingsError } = useQuery({
     queryKey: ['cloudSettings'],
     queryFn: () => api.getCloudSettings(),
     enabled: !!status?.is_authenticated,
@@ -3032,7 +3032,10 @@ export function ProfilesPage() {
             />
           ) : (
             <div className="text-center py-16">
-              <p className="text-bambu-gray mb-4">{t('profiles.failedToLoad')}</p>
+              <p className="text-bambu-gray mb-2">{t('profiles.failedToLoad')}</p>
+              {settingsError instanceof Error && (
+                <p className="text-xs text-red-400 mb-4 break-words" role="alert">{settingsError.message}</p>
+              )}
               <Button onClick={() => refetchSettings()}>{t('profiles.retry')}</Button>
             </div>
           )}
