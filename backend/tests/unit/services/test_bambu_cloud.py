@@ -484,6 +484,27 @@ class TestSlicerSettingVersionParam:
         return cloud
 
     @pytest.mark.asyncio
+    async def test_get_slicer_settings_sends_private_presets_param(self):
+        """Bambu Studio's preset-sync endpoint requires public=false."""
+        cloud = self._auth()
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "printer": {"private": [], "public": []},
+            "print": {"private": [], "public": []},
+            "filament": {"private": [], "public": []},
+        }
+
+        with patch.object(cloud._client, "get", new_callable=AsyncMock) as mock_get:
+            mock_get.return_value = mock_response
+            await cloud.get_slicer_settings()
+
+            params = mock_get.call_args.kwargs.get("params") or {}
+            assert params.get("version")
+            assert params.get("public") == "false"
+
+    @pytest.mark.asyncio
     async def test_get_setting_detail_sends_version_param(self):
         """`get_setting_detail` must include the version query param — without
         it Bambu Cloud returns HTTP 400 'field version is not set'."""
