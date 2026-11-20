@@ -299,10 +299,16 @@ async def set_kprofiles_batch(
     if not ok:
         raise HTTPException(500, f"Printer rejected the K-profiles: {detail}")
 
+    confirmed = detail != CALI_ACK_UNCONFIRMED
+    message = (
+        f"Added {len(profiles)} K-profiles"
+        if confirmed
+        else f"Sent {len(profiles)} K-profiles; the printer did not confirm them"
+    )
     return {
         "success": True,
-        "confirmed": True,
-        "message": f"Added {len(profiles)} K-profiles",
+        "confirmed": confirmed,
+        "message": message,
     }
 
 
