@@ -80,3 +80,18 @@
 4. Add real G-code and 3MF-G-code output validation.
 5. Port and test Wave Overhangs integration.
 6. Append a dated development note here with every subsequent change.
+
+
+---
+
+## Development note — 2026-11-19: Web Slicer first implementation
+
+- Created branch `feature/web-slicer` from the official-sync branch head `5944295438a9cfa2f083b0fbc400fd08d437c39f`. This preserves the upstream v1.3.1 snapshot as the feature base; it does not imply PR #2 has been merged.
+- Added `frontend/src/pages/WebSlicerPage.tsx`: responsive drag/drop and file-picker workflow for STL, 3MF, STEP/STP, OBJ and AMF; uploads through the existing authenticated library upload API; displays the imported model metadata; opens the existing 3D model preview; opens the existing preset-driven SliceModal.
+- Added lazy route `/web-slicer` and sidebar entry with `library:upload` permission gating. Existing authentication configuration is unchanged.
+- Uses existing slice job tracking and preset selection rather than duplicating the slicer API. Output downloads/progress remain in the existing slice-job notification/tracker flow.
+- Files committed: `frontend/src/pages/WebSlicerPage.tsx`, `frontend/src/App.tsx`, `frontend/src/components/Layout.tsx`, `frontend/src/i18n/locales/en.ts`.
+- Latest Web Slicer page commit: `ca85ad87d446a8989958b3f499aa0161521f7abb`; navigation icon commit: `f40957af5d60fe90c3c27d685b1b2077f7ba4019`; English label commit: `187cfe3ba76a579e6f01c0d16f852cec6358b1aa`.
+- Validation not yet run: no local checkout/build environment is available in this session. GitHub Actions results must be checked after the PR is opened.
+- Known gaps: add translations to remaining locales if parity checks require them; add an inline preview state (currently preview uses the existing modal); verify supported upload extensions against backend validators; verify upload duplicate handling; test auth-on/auth-off, mobile viewport, slicing, progress, G-code and 3MF-G-code download; port Wave only after the standard path is verified.
+- PR #2 remains unresolved: GitHub reports `mergeable=false`, `mergeable_state=dirty`; the fork main moved to `c66f6212d9b23140ca6d1b0ae52e7c13943cf361`, while sync branch head is `5944295438a9cfa2f083b0fbc400fd08d437c39f`. The compare shows diverged history (515 ahead / 41 behind). The available GitHub connector can inspect and edit files/refs but does not expose a conflict-aware rebase/merge operation or a local git checkout. Do not claim conflicts resolved or force-update the branch. Resolve with a real git merge/rebase preserving all 41 fork-only commits, then update PR #2.
