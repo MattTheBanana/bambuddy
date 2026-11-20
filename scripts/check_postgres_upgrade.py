@@ -223,7 +223,7 @@ def release_tags() -> list[str]:
     tags = subprocess.run(
         ["git", "tag", "--list", "v*", "--sort=-v:refname"], cwd=REPO, check=True, capture_output=True, text=True
     ).stdout.split()
-    return [tag for tag in tags if re.fullmatch(r"v\\d+(\\.\\d+)+", tag)]
+    return [tag for tag in tags if re.fullmatch(r"v\d+(\.\d+)+", tag)]
 
 
 def newest_stable_release() -> str | None:
@@ -409,7 +409,7 @@ def main() -> int:
 
     databases = (
         {"fresh": "bambuddy_check_fresh"}
-        | {r: "bambuddy_check_" + re.sub(r"\\W", "_", r) for r in releases}
+        | {r: "bambuddy_check_" + re.sub(r"\W", "_", r) for r in releases}
         | {s.name: f"bambuddy_check_scenario_{i}" for i, s in enumerate(scenarios)}
     )
     asyncio.run(_admin(admin_url, *(f"DROP DATABASE IF EXISTS {db}" for db in databases.values())))
