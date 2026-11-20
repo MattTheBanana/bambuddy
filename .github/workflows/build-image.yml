@@ -13,7 +13,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: matthebanana/bambuddy
+  IMAGE_NAME: mattthebanana/bambuddy
 
 jobs:
   build-and-push:
@@ -37,7 +37,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/mattthebanana/bambuddy
+          images: ghcr.io/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
             type=sha
