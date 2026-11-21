@@ -123,7 +123,7 @@ jobs:
             --ignore-vuln CVE-2025-45768
 
   backend-tests:
-    name: Backend Tests (shard ${{ matrix.shard }}/4)
+    name: Backend Tests (shard ${{ matrix.shard }}/8)
     runs-on: ubuntu-latest
     needs: backend-lint
     strategy:
@@ -132,7 +132,7 @@ jobs:
       # all broken tests in one go.
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v6
 
@@ -156,22 +156,22 @@ jobs:
           pip install -r requirements.lock
           pip install -r requirements-dev.txt
 
-      - name: Run tests (shard ${{ matrix.shard }}/4)
+      - name: Run tests (shard ${{ matrix.shard }}/8)
         timeout-minutes: 15
         run: |
           cd backend
           # -v dropped: 5300+ "PASSED foo::bar" lines per worker eat 30-60s
           # of stdout I/O time on 2-vCPU runners. --tb=short is enough.
           #
-          # --splits 4 --group N slices the suite across the 4 matrix shards.
+          # --splits 8 --group N slices the suite across the 8 matrix shards.
           # Without a durations file pytest-split balances by test COUNT, which
           # is not the same thing as time: measured 2026-08-31, that put 658s of
           # the suite's 1046s into shard 1 and 101s into shard 4 -- a 6.5x spread
           # that walked shard 1 into the old 10-minute timeout on a docs-only
-          # commit. tests/.test_durations is committed so the split is balanced
-          # by measured time instead (1.01x spread). Shard test counts are
-          # lopsided by design once it is used: shard 4 takes thousands of fast
-          # unit tests, shard 1 keeps the slow integration ones.
+          # commit. The checked-in tests/.test_durations may be empty; in that case
+          # pytest-split falls back to test-count balancing. Eight shards reduce
+          # the wall-time penalty from uneven test durations until measured
+          # timings are populated and kept current.
           #
           # --durations-path must be explicit: pytest-split defaults it to
           # $CWD/.test_durations, and this job runs from backend/ while the
@@ -184,7 +184,7 @@ jobs:
             --tb=short \
             --timeout=60 --timeout-method=thread \
             -n auto \
-            --splits 4 --group ${{ matrix.shard }} \
+            --splits 8 --group ${{ matrix.shard }} \
             --durations-path tests/.test_durations
 
   backend-postgres-upgrade:
@@ -419,7 +419,7 @@ jobs:
   # Docker Tests (matches test_docker.sh)
   # ============================================================================
 
-  # Run the FULL backend test suite inside the test image, sharded 4-way
+  # Run the FULL backend test suite inside the test image, sharded 8-way
   # so wall-clock matches the host-side backend-tests job. Catches the
   # rare-but-real cases where a test passes on the GHA host but fails in
   # the python:3.13-slim test image (system-binary version differences,
@@ -427,14 +427,14 @@ jobs:
   # sharding this was a 5-10 min single-runner job; with sharding it's
   # ~120-150s per shard running in parallel, gated by max(shard).
   docker-backend-tests:
-    name: Docker Backend Tests (shard ${{ matrix.shard }}/4)
+    name: Docker Backend Tests (shard ${{ matrix.shard }}/8)
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' && (github.event_name == 'push' || github.event.pull_request.user.login != github.repository_owner)
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v6
 
@@ -442,7 +442,7 @@ jobs:
         uses: docker/setup-buildx-action@v4
 
       # Build the backend-test image with GHA BuildKit cache backend so
-      # the pip-install layer is shared across the 4 matrix shards AND
+      # the pip-install layer is shared across the 8 matrix shards AND
       # across CI runs. First run on a given requirements.txt is cold
       # (~60-90s); subsequent runs are ~5-10s.
       - name: Build backend test image (cached)
@@ -472,7 +472,7 @@ jobs:
               --timeout=60 --timeout-method=thread \
               -p no:cacheprovider \
               -n auto \
-              --splits 4 --group ${{ matrix.shard }} \
+              --splits 8 --group ${{ matrix.shard }} \
               --durations-path backend/tests/.test_durations
 
   docker-test:
