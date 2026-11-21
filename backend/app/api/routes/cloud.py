@@ -1391,7 +1391,7 @@ async def _build_filament_id_map(user: User | None, account: int | None) -> dict
 
     try:
         data = await cloud.get_slicer_settings()
-        custom_presets = data.get("filament", {}).get("private", [])
+        custom_presets = (data.get("filament") or {}).get("private") or []
 
         result: dict[str, str] = {}
         for preset in custom_presets:
