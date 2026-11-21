@@ -605,9 +605,9 @@ async def get_slicer_settings(
         }
 
         for api_key, our_type in type_mapping.items():
-            type_data = data.get(api_key, {})
-            private_settings = type_data.get("private", [])
-            public_settings = type_data.get("public", [])
+            type_data = data.get(api_key) or {}
+            private_settings = type_data.get("private") or []
+            public_settings = type_data.get("public") or []
 
             parsed = []
             # Private (custom) presets first
@@ -1391,7 +1391,7 @@ async def _build_filament_id_map(user: User | None, account: int | None) -> dict
 
     try:
         data = await cloud.get_slicer_settings()
-        custom_presets = data.get("filament", {}).get("private", [])
+        custom_presets = (data.get("filament") or {}).get("private") or []
 
         result: dict[str, str] = {}
         for preset in custom_presets:
