@@ -605,9 +605,9 @@ async def get_slicer_settings(
         }
 
         for api_key, our_type in type_mapping.items():
-            type_data = data.get(api_key, {})
-            private_settings = type_data.get("private", [])
-            public_settings = type_data.get("public", [])
+            type_data = data.get(api_key) or {}
+            private_settings = type_data.get("private") or []
+            public_settings = type_data.get("public") or []
 
             parsed = []
             # Private (custom) presets first
