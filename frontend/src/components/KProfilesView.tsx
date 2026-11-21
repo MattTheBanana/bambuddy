@@ -453,8 +453,8 @@ function KProfileModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-md relative">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <Card className="w-full max-w-md max-h-[calc(100dvh-1rem)] flex flex-col overflow-hidden relative">
         {/* Syncing overlay */}
         {isSyncing && (
           <div className="absolute inset-0 bg-bambu-dark-secondary/90 flex flex-col items-center justify-center z-10 rounded-lg">
@@ -467,8 +467,8 @@ function KProfileModal({
             <p className="text-bambu-gray text-sm mt-1">{t('kProfiles.modal.pleaseWait')}</p>
           </div>
         )}
-        <CardContent className="p-0">
-          <div className="flex items-center justify-between p-4 border-b border-bambu-dark-tertiary">
+        <CardContent className="p-0 flex min-h-0 flex-col overflow-hidden">
+          <div className="flex shrink-0 items-center justify-between p-4 border-b border-bambu-dark-tertiary">
             <h2 className="text-xl font-semibold text-white">
               {profile ? t('kProfiles.modal.editTitle') : t('kProfiles.modal.addTitle')}
             </h2>
@@ -481,7 +481,7 @@ function KProfileModal({
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          <form onSubmit={handleSubmit} className="min-h-0 overflow-y-auto overscroll-contain p-4 space-y-4">
             {/* Profile Name - read-only when editing */}
             <div>
               <label className="block text-sm text-bambu-gray mb-1">{t('kProfiles.modal.profileName')}</label>
