@@ -176,7 +176,7 @@ async def _fetch_cloud_presets(
 
         slots = _empty_slots()
         for cloud_type, slot in _CLOUD_TYPE_TO_SLOT.items():
-            type_data = raw.get(cloud_type, {})
+            type_data = raw.get(cloud_type) or {}
             # The cloud splits presets into "private" (the user's own) and "public"
             # (Bambu's stock cloud presets). Both are valid choices — surface them
             # in the natural order private → public so a user's customisations
