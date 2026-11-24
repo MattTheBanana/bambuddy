@@ -6111,6 +6111,10 @@ async def _run_migrations(conn):
     # (``print_cost_estimate.fill_plate_estimates``).
     await _safe_execute(conn, "ALTER TABLE print_archives ADD COLUMN plate_estimates JSON")
 
+    # Archive G-code fingerprint, used to match slicer resends to prior archives.
+    await _safe_execute(conn, "ALTER TABLE print_archives ADD COLUMN gcode_hash VARCHAR(64)")
+    await _safe_execute(conn, "CREATE INDEX IF NOT EXISTS ix_print_archives_gcode_hash ON print_archives (gcode_hash)")
+
     await _backfill_archive_run_photos(conn)
     await _migrate_h3c_queue_tray_ids(conn)
 
