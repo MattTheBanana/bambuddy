@@ -99,3 +99,19 @@
 - Kept upstream's current CI workflow. The conflicting slicer library/config/schema/settings files were reconciled by applying the fork-specific Wave changes to the upstream versions rather than replacing those files wholesale.
 - PR #3 is stacked on this branch. Its head merge commit is `67b2ffb004beb3ba506fd3bd81228604b5df7d31`; its diff against this base is limited to Web Slicer UI/route/locale files.
 - No local tests or builds were run. GitHub Actions workflow runs and commit statuses were empty at the time checked. Required validation: backend tests, frontend lint/typecheck/build, Docker builds, upload-preview-slice/download integration, and output/printer validation.
+
+
+## Remaining v1.3.2 transfer — 2026-11-24
+
+- Official upstream release: `maziggy/bambuddy` tag `v1.3.2`, commit `b7d894b57c0a373f66dc0de49680865b02b3aae5` (parent is upstream v1.3.1 commit `1aa7bce166682fde929fec0d535bdaaa22685aad`).
+- Existing selective feature port remains in PR #21 / merge commit `55318a20a288c3ebc715c000dcd1607aa7556c41`.
+- Remaining port branch: `port/remaining-v1.3.2`; initial port commit: `acc95480c659136b0b9403222ef75dac1437b7bc`; review PR #23.
+- Compared the full upstream v1.3.1 → v1.3.2 delta (300 changed paths) against the fork's changes. Seventy-three overlapping paths were already handled by PR #21. The other three overlaps were reconciled deliberately:
+  - `backend/app/core/config.py`: set `APP_VERSION = "1.3.2"` and retained `wave_overhangs_api_url`.
+  - `backend/app/services/bambu_cloud.py`: added upstream null preset-category/list normalization while retaining the fork's `public=false` request parameter and detailed non-200 error handling.
+  - `frontend/src/__tests__/pages/SettingsPage.test.tsx`: retained the fork's version and its Web Slicer sidebar expectations.
+- Ported the other 111 non-overlapping upstream paths, including backend fixes/tests, frontend source/tests, PWA source assets, Dockerfile, fonts, and changelog.
+- Deliberately did not copy the 113 generated `static/assets/*` files. They must be regenerated from the fork's combined frontend source so the custom Web Slicer is included; do not copy the upstream prebuilt bundle over the fork's bundle.
+- A full upstream PR (#22) was opened as a draft to test the merge and GitHub reported conflicts. It was closed without merging; branch `sync/official-v1.3.2-full` remains as an audit reference. Do not merge it.
+- No local build or tests were run in this environment. PR #23 is a draft pending backend tests, frontend lint/typecheck/tests/build, Docker build, regenerated static assets, and Web Slicer upload → preview → slice → download verification.
+- Preserve the Web Slicer, Wave Overhangs, relaxed password validation (password login remains enabled), `local_login_enabled`, Docker/sidecar changes, and all other fork-only behavior in any follow-up resolution.
