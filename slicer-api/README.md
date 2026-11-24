@@ -64,7 +64,8 @@ The ports are published on all interfaces by default. The sidecars have no
 login, so anyone who can reach the ports can use them. If Bambuddy runs on
 the same host with `network_mode: host` (its default compose file), set
 `SIDECAR_BIND=127.0.0.1` in `.env` so only this host can reach them. Leave it
-unset when Bambuddy runs in bridge mode or on another host.
+unset when Bambuddy runs in bridge mode or on another host. The setting also restricts the optional
+Wave Overhangs API port.
 
 ## Bambuddy wiring
 

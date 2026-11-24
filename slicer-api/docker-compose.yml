@@ -86,7 +86,7 @@ services:
     container_name: wave-overhangs-api
     restart: unless-stopped
     ports:
-      - "${WAVE_API_PORT:-3004}:3000"
+      - "${SIDECAR_BIND:+${SIDECAR_BIND}:}${WAVE_API_PORT:-3004}:3000"
     volumes:
       - ./data/wave:/app/data
     environment:
