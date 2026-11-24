@@ -37,6 +37,7 @@ def _utc_iso(value: datetime | None) -> str:
         value = value.astimezone(timezone.utc).replace(tzinfo=None)
     return value.replace(microsecond=0).isoformat() + "Z"
 
+
 # What one print of an archive has of its own (archive redesign): in the
 # export, its run's. Everything else is the file's, the archive's.
 _PER_PRINT_FIELDS = frozenset(
