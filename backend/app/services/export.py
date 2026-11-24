@@ -24,7 +24,7 @@ _FORMULA_PREFIXES = ("=", "+", "-", "@", "＝", "＋", "－", "＠")
 def _spreadsheet_text(value: Any) -> Any:
     if not isinstance(value, str) or not value:
         return value
-    if value[0] in "\\t\\r\\n" or value.lstrip().startswith(_FORMULA_PREFIXES):
+    if value[0] in "\t\r\n" or value.lstrip().startswith(_FORMULA_PREFIXES):
         return f"'{value}"
     return value
 
@@ -406,11 +406,11 @@ class ExportService:
             for entry in entries
         ]
         output = io.StringIO()
-        output.write("\\ufeff")
+        output.write("\ufeff")
         writer = csv.writer(output)
         writer.writerow(cls.MAINTENANCE_LOG_HEADERS)
         writer.writerows(rows)
-        slug = re.sub(r"[^\\w-]+", "_", scope_label, flags=re.UNICODE).strip("_") or "printer"
+        slug = re.sub(r"[^\w-]+", "_", scope_label, flags=re.UNICODE).strip("_") or "printer"
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         return output.getvalue().encode("utf-8"), f"maintenance_log_{slug}_{timestamp}.csv"
 
