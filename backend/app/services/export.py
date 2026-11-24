@@ -22,6 +22,8 @@ _FORMULA_PREFIXES = ("=", "+", "-", "@", "＝", "＋", "－", "＠")
 
 
 def _spreadsheet_text(value: Any) -> Any:
+    if value is None:
+        return ""
     if not isinstance(value, str) or not value:
         return value
     if value[0] in "\t\r\n" or value.lstrip().startswith(_FORMULA_PREFIXES):
