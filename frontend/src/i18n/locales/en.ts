@@ -294,7 +294,7 @@ export default {
     addPreflight: {
       checking: 'Checking connection...',
       warning: 'Some connection checks failed. This printer may show as offline. Review the checks below, fix what you can, or save anyway.',
-      back: 'Back',
+      checkAgain: 'Check again',
       saveAnyway: 'Save anyway',
     },
     editPrinter: 'Edit Printer',
@@ -303,6 +303,8 @@ export default {
     serialNumber: 'Serial Number',
     ipAddress: 'IP Address / Hostname',
     accessCode: 'Access Code',
+    showAccessCode: 'Show access code',
+    hideAccessCode: 'Hide access code',
     model: 'Model',
     nozzleCount: 'Nozzle Count',
     autoArchive: 'Auto Archive',
@@ -1209,6 +1211,8 @@ export default {
       project: 'Project: {{name}}',
       runsBadge: '{{count}} prints',
       runsBadgeTitle: '{{count}} prints total — {{successful}} successful, {{failed}} failed. Click to see the full print log.',
+      // The card's figures for an archive printed more than once (#3609).
+      totalOfRuns: 'Total of {{count}} prints',
       estimated: 'Estimated: {{time}}',
       actual: 'Actual: {{time}}',
       accuracy: 'Accuracy: {{percent}}%',
@@ -5382,6 +5386,7 @@ export default {
     slicerFilamentName: 'Slicer Preset Name',
     slicerPreset: 'Slicer Preset',
     searchPresets: 'Search filament presets...',
+    clearPreset: 'Remove preset',
     selectedPreset: 'Selected',
     noPresetsFound: 'No presets found',
     tempOverrides: 'Temperature Overrides',
@@ -6884,6 +6889,9 @@ export default {
     onValue: 'ON Value',
     mqttPowerHint: 'JSON path extracts value from JSON payload (e.g., "power_l1"). Leave empty if topic publishes raw numeric values.\nUse multiplier 0.001 for mW→W, 1000 for kW→W.',
     mqttEnergyHint: 'JSON path extracts value from JSON payload. Leave empty for raw values.\nUse multiplier 0.001 for Wh→kWh, 1000 for MWh→kWh.',
+    mqttEnergyTotalPathHint: "e.g. ENERGY.Total",
+    mqttEnergyTotalHint:
+      "A lifetime counter that never resets, from the same topic (Tasmota: ENERGY.Total). Per-print energy needs it: a daily counter drops back to zero at midnight, so a print running past midnight lost its energy. Leave it empty to use the energy value above for both, as before.",
     mqttStateHint: 'JSON path extracts value from JSON payload. Leave empty for raw values.\nON value: the exact string that means "ON". Leave empty for auto-detect (ON, true, 1).',
     // REST smart plug
     restControl: 'Control',

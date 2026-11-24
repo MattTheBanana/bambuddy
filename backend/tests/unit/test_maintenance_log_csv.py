@@ -29,7 +29,7 @@ from backend.app.services.export import _spreadsheet_text
         ("＝HYPERLINK(1)", "'＝HYPERLINK(1)"),
         ("＠SUM(A1)", "'＠SUM(A1)"),
         ("", ""),
-        (None, ""),
+        (None, None),  # None is preserved until the csv writer emits an empty cell
     ],
 )
 def test_a_formula_like_cell_gets_a_leading_quote(value, expected):

@@ -292,7 +292,7 @@ export default {
     addPreflight: {
       checking: 'Verbinding controleren...',
       warning: 'Sommige verbindingscontroles zijn mislukt. Deze printer kan als offline worden weergegeven. Controleer de onderstaande controles, herstel wat je kunt of sla toch op.',
-      back: 'Terug',
+      checkAgain: 'Opnieuw controleren',
       saveAnyway: 'Toch opslaan',
     },
     editPrinter: 'Printer bewerken',
@@ -301,6 +301,8 @@ export default {
     serialNumber: 'Serienummer',
     ipAddress: 'IP-adres / hostnaam',
     accessCode: 'Toegangscode',
+    showAccessCode: 'Toegangscode tonen',
+    hideAccessCode: 'Toegangscode verbergen',
     model: 'Model',
     nozzleCount: 'Aantal nozzles',
     autoArchive: 'Automatisch archiveren',
@@ -1207,6 +1209,8 @@ export default {
       project: 'Project: {{name}}',
       runsBadge: '{{count}} afdrukken',
       runsBadgeTitle: '{{count}} afdrukken totaal — {{successful}} geslaagd, {{failed}} mislukt. Klik om het volledige afdruklogboek te bekijken.',
+      // The card's figures for an archive printed more than once (#3609).
+      totalOfRuns: 'Totaal van {{count}} prints',
       estimated: 'Geschat: {{time}}',
       actual: 'Werkelijk: {{time}}',
       accuracy: 'Nauwkeurigheid: {{percent}}%',
@@ -5380,6 +5384,7 @@ export default {
     slicerFilamentName: 'Naam slicerpreset',
     slicerPreset: 'Slicer-preset',
     searchPresets: 'Filamentpresets zoeken...',
+    clearPreset: 'Preset verwijderen',
     selectedPreset: 'Geselecteerd',
     noPresetsFound: 'Geen presets gevonden',
     tempOverrides: 'Temperatuuroverschrijvingen',
@@ -6882,6 +6887,9 @@ export default {
     onValue: 'AAN-waarde',
     mqttPowerHint: 'JSON-pad haalt de waarde uit een JSON-payload (bijv. "power_l1"). Laat leeg als het topic ruwe numerieke waarden publiceert.\nGebruik vermenigvuldigingsfactor 0.001 voor mW→W, 1000 voor kW→W.',
     mqttEnergyHint: 'JSON-pad haalt de waarde uit een JSON-payload. Laat leeg voor ruwe waarden.\nGebruik vermenigvuldigingsfactor 0.001 voor Wh→kWh, 1000 voor MWh→kWh.',
+    mqttEnergyTotalPathHint: "bijv. ENERGY.Total",
+    mqttEnergyTotalHint:
+      "Een totaalteller die nooit wordt gereset, uit hetzelfde topic (Tasmota: ENERGY.Total). Energie per print heeft hem nodig: een dagteller gaat om middernacht terug naar nul, waardoor een print over middernacht zijn energie kwijtraakte. Laat leeg om de energiewaarde hierboven zoals voorheen voor beide te gebruiken.",
     mqttStateHint: 'JSON-pad haalt de waarde uit een JSON-payload. Laat leeg voor ruwe waarden.\nAAN-waarde: de exacte tekenreeks die "AAN" betekent. Laat leeg voor automatische detectie (ON, true, 1).',
     // REST smart plug
     restControl: 'Bedienen',

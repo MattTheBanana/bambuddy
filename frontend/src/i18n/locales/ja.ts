@@ -289,7 +289,7 @@ export default {
     addPreflight: {
       checking: '接続を確認しています...',
       warning: '一部の接続チェックに失敗しました。このプリンターはオフラインと表示される可能性があります。下のチェックを確認し、可能な範囲で修正するか、そのまま保存してください。',
-      back: '戻る',
+      checkAgain: '再確認',
       saveAnyway: 'そのまま保存',
     },
     title: 'プリンター',
@@ -300,6 +300,8 @@ export default {
     serialNumber: 'シリアル番号',
     ipAddress: 'IPアドレス / ホスト名',
     accessCode: 'アクセスコード',
+    showAccessCode: 'アクセスコードを表示',
+    hideAccessCode: 'アクセスコードを隠す',
     model: 'モデル',
     nozzleCount: 'ノズル数',
     autoArchive: '自動アーカイブ',
@@ -1201,6 +1203,8 @@ export default {
       project: 'プロジェクト: {{name}}',
       runsBadge: '{{count}} 回印刷',
       runsBadgeTitle: '合計 {{count}} 回 — 成功 {{successful}} 回、失敗 {{failed}} 回。クリックして印刷ログを開きます。',
+      // The card's figures for an archive printed more than once (#3609).
+      totalOfRuns: '{{count}} 回の印刷の合計',
       estimated: '推定: {{time}}',
       actual: '実際: {{time}}',
       accuracy: '精度: {{percent}}%',
@@ -5344,6 +5348,7 @@ export default {
     slicerFilamentName: 'スライサープリセット名',
     slicerPreset: 'スライサープリセット',
     searchPresets: 'フィラメントプリセットを検索...',
+    clearPreset: 'プリセットを解除',
     selectedPreset: '選択済み',
     noPresetsFound: 'プリセットが見つかりません',
     tempOverrides: '温度オーバーライド',
@@ -6832,6 +6837,9 @@ export default {
     onValue: 'ON値',
     mqttPowerHint: 'JSONパスはJSONペイロードから値を抽出します（例: "power_l1"）。トピックが生の数値を送信する場合は空のままにしてください。\n乗数: mW→Wは0.001、kW→Wは1000を使用。',
     mqttEnergyHint: 'JSONパスはJSONペイロードから値を抽出します。生の値の場合は空のままにしてください。\n乗数: Wh→kWhは0.001、MWh→kWhは1000を使用。',
+    mqttEnergyTotalPathHint: "例: ENERGY.Total",
+    mqttEnergyTotalHint:
+      "同じトピックの、リセットされない累計カウンター（Tasmota: ENERGY.Total）。印刷ごとの電力量に必要です。日次カウンターは深夜0時にゼロに戻るため、0時をまたぐ印刷の電力量が失われていました。空欄の場合は、従来どおり上の電力量の値を両方に使用します。",
     mqttStateHint: 'JSONパスはJSONペイロードから値を抽出します。生の値の場合は空のままにしてください。\nON値: "ON"を意味する正確な文字列。自動検出（ON、true、1）の場合は空のままにしてください。',
     // REST smart plug
     restControl: 'コントロール',

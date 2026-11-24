@@ -290,7 +290,7 @@ export default {
     addPreflight: {
       checking: 'Verifica della connessione...',
       warning: 'Alcuni controlli di connessione non sono riusciti. Questa stampante potrebbe risultare offline. Controlla le verifiche qui sotto, risolvi ciò che puoi oppure salva comunque.',
-      back: 'Indietro',
+      checkAgain: 'Verifica di nuovo',
       saveAnyway: 'Salva comunque',
     },
     title: 'Stampanti',
@@ -301,6 +301,8 @@ export default {
     serialNumber: 'Numero Seriale',
     ipAddress: 'Indirizzo IP',
     accessCode: 'Codice di Accesso',
+    showAccessCode: 'Mostra codice di accesso',
+    hideAccessCode: 'Nascondi codice di accesso',
     model: 'Modello',
     nozzleCount: 'Numero Ugelli',
     autoArchive: 'Auto Archiviazione',
@@ -1202,6 +1204,8 @@ export default {
       project: 'Progetto: {{name}}',
       runsBadge: '{{count}} stampe',
       runsBadgeTitle: '{{count}} stampe in totale — {{successful}} riuscite, {{failed}} fallite. Fai clic per vedere il registro completo.',
+      // The card's figures for an archive printed more than once (#3609).
+      totalOfRuns: 'Totale di {{count}} stampe',
       estimated: 'Stimato: {{time}}',
       actual: 'Reale: {{time}}',
       accuracy: 'Accuratezza: {{percent}}%',
@@ -5331,6 +5335,7 @@ export default {
     slicerFilamentName: 'Nome Preset Slicer',
     slicerPreset: 'Preset Slicer',
     searchPresets: 'Cerca preset filamento...',
+    clearPreset: 'Rimuovi preset',
     selectedPreset: 'Selezionato',
     noPresetsFound: 'Nessun preset trovato',
     tempOverrides: 'Override Temperatura',
@@ -6818,6 +6823,9 @@ export default {
     onValue: 'Valore ON',
     mqttPowerHint: 'Il percorso JSON estrae il valore dal payload JSON (es. "power_l1"). Lascia vuoto se il topic pubblica valori numerici grezzi.\nUsa moltiplicatore 0.001 per mW→W, 1000 per kW→W.',
     mqttEnergyHint: 'Il percorso JSON estrae il valore dal payload JSON. Lascia vuoto per valori grezzi.\nUsa moltiplicatore 0.001 per Wh→kWh, 1000 per MWh→kWh.',
+    mqttEnergyTotalPathHint: "es. ENERGY.Total",
+    mqttEnergyTotalHint:
+      "Un contatore totale che non si azzera mai, dallo stesso topic (Tasmota: ENERGY.Total). L'energia per stampa ne ha bisogno: un contatore giornaliero torna a zero a mezzanotte, quindi una stampa oltre la mezzanotte perdeva la sua energia. Lascia vuoto per usare il valore di energia sopra per entrambi, come prima.",
     mqttStateHint: 'Il percorso JSON estrae il valore dal payload JSON. Lascia vuoto per valori grezzi.\nValore ON: la stringa esatta che significa "ON". Lascia vuoto per rilevamento auto (ON, true, 1).',
     // REST smart plug
     restControl: 'Controllo',

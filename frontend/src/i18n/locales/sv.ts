@@ -292,7 +292,7 @@ export default {
     addPreflight: {
       checking: 'Kontrollerar anslutning...',
       warning: 'Vissa anslutningskontroller misslyckades. Denna skrivare kan visas som offline. Granska kontrollerna nedan, åtgärda vad du kan, eller spara ändå.',
-      back: 'Tillbaka',
+      checkAgain: 'Kontrollera igen',
       saveAnyway: 'Spara ändå',
     },
     editPrinter: 'Redigera skrivare',
@@ -301,6 +301,8 @@ export default {
     serialNumber: 'Serienummer',
     ipAddress: 'IP-adress / värdnamn',
     accessCode: 'Åtkomstkod',
+    showAccessCode: 'Visa åtkomstkod',
+    hideAccessCode: 'Dölj åtkomstkod',
     model: 'Modell',
     nozzleCount: 'Antal munstycken',
     autoArchive: 'Autoarkivera',
@@ -1207,6 +1209,8 @@ export default {
       project: 'Projekt: {{name}}',
       runsBadge: '{{count}} utskrifter',
       runsBadgeTitle: '{{count}} utskrifter totalt — {{successful}} lyckade, {{failed}} misslyckade. Klicka för att se hela utskriftsloggen.',
+      // The card's figures for an archive printed more than once (#3609).
+      totalOfRuns: 'Totalt för {{count}} utskrifter',
       estimated: 'Uppskattad: {{time}}',
       actual: 'Faktisk: {{time}}',
       accuracy: 'Noggrannhet: {{percent}}%',
@@ -5412,6 +5416,7 @@ errors: {
     slicerFilamentName: 'Slicer-förinställningsnamn',
     slicerPreset: 'Slicer-förinställning',
     searchPresets: 'Sök filamentförinställningar...',
+    clearPreset: 'Ta bort förinställning',
     selectedPreset: 'Vald',
     noPresetsFound: 'Inga förinställningar hittade',
     tempOverrides: 'Temperaturåsidosättningar',
@@ -6913,6 +6918,9 @@ errors: {
     onValue: 'PÅ-värde',
     mqttPowerHint: 'JSON-sökväg extraherar värde från JSON-nyttolast (t.ex. "power_l1"). Lämna tomt om ämnet publicerar råa numeriska värden.\nAnvänd multiplikator 0,001 för mW→W, 1000 för kW→W.',
     mqttEnergyHint: 'JSON-sökväg extraherar värde från JSON-nyttolast. Lämna tomt för råa värden.\nAnvänd multiplikator 0,001 för Wh→kWh, 1000 för MWh→kWh.',
+    mqttEnergyTotalPathHint: "t.ex. ENERGY.Total",
+    mqttEnergyTotalHint:
+      "En totalräknare som aldrig nollställs, från samma topic (Tasmota: ENERGY.Total). Energi per utskrift behöver den: en dagsräknare går tillbaka till noll vid midnatt, så en utskrift över midnatt förlorade sin energi. Lämna tomt för att använda energivärdet ovan för båda, som tidigare.",
     mqttStateHint: 'JSON-sökväg extraherar värde från JSON-nyttolast. Lämna tomt för råa värden.\nPÅ-värde: den exakta strängen som betyder "PÅ". Lämna tomt för auto-upptäckt (PÅ, true, 1).',
     // REST kontakt
     restControl: 'Kontroll',

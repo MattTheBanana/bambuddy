@@ -292,7 +292,7 @@ export default {
     addPreflight: {
       checking: 'Bağlantı kontrol ediliyor...',
       warning: 'Bazı bağlantı kontrolleri başarısız oldu. Bu yazıcı çevrimdışı olarak görünebilir. Aşağıdaki kontrolleri inceleyin, düzeltebileceklerinizi düzeltin veya yine de kaydedin.',
-      back: 'Geri',
+      checkAgain: 'Tekrar kontrol et',
       saveAnyway: 'Yine de kaydet',
     },
     editPrinter: 'Yazıcıyı Düzenle',
@@ -301,6 +301,8 @@ export default {
     serialNumber: 'Seri Numarası',
     ipAddress: 'IP Adresi / Ana Bilgisayar Adı',
     accessCode: 'Erişim Kodu',
+    showAccessCode: 'Erişim kodunu göster',
+    hideAccessCode: 'Erişim kodunu gizle',
     model: 'Model',
     nozzleCount: 'Nozul Sayısı',
     autoArchive: 'Otomatik Arşivle',
@@ -1202,6 +1204,8 @@ export default {
       project: 'Proje: {{name}}',
       runsBadge: '{{count}} baskı',
       runsBadgeTitle: 'Toplam {{count}} baskı — {{successful}} başarılı, {{failed}} başarısız. Tam baskı günlüğünü görmek için tıklayın.',
+      // The card's figures for an archive printed more than once (#3609).
+      totalOfRuns: '{{count}} baskının toplamı',
       estimated: 'Tahmini: {{time}}',
       actual: 'Gerçek: {{time}}',
       accuracy: 'Doğruluk: %{{percent}}',
@@ -5333,6 +5337,7 @@ export default {
     slicerFilamentName: 'Dilimleyici Ön Ayar Adı',
     slicerPreset: 'Dilimleyici Ön Ayarı',
     searchPresets: 'Filament ön ayarlarında ara...',
+    clearPreset: 'Ön ayarı kaldır',
     selectedPreset: 'Seçildi',
     noPresetsFound: 'Ön ayar bulunamadı',
     tempOverrides: 'Sıcaklık Geçersiz Kılmaları',
@@ -6793,6 +6798,9 @@ export default {
     onValue: 'ON Değeri',
     mqttPowerHint: 'JSON yolu JSON yükten değer çıkarır (örn., "power_l1"). Konu ham sayısal değerler yayınlıyorsa boş bırakın.\nmW→W için 0.001, kW→W için 1000 çarpanı kullanın.',
     mqttEnergyHint: 'JSON yolu JSON yükten değer çıkarır. Ham değerler için boş bırakın.\nWh→kWh için 0.001, MWh→kWh için 1000 çarpanı kullanın.',
+    mqttEnergyTotalPathHint: "örn. ENERGY.Total",
+    mqttEnergyTotalHint:
+      "Aynı konudan, hiç sıfırlanmayan toplam sayaç (Tasmota: ENERGY.Total). Baskı başına enerji için gereklidir: günlük sayaç gece yarısı sıfıra döner, bu yüzden gece yarısını geçen bir baskı enerjisini kaybediyordu. Daha önce olduğu gibi yukarıdaki enerji değerini her ikisi için kullanmak için boş bırakın.",
     mqttStateHint: 'JSON yolu JSON yükten değer çıkarır. Ham değerler için boş bırakın.\nON değeri: "ON" anlamına gelen tam string. Otomatik algılama için boş bırakın (ON, true, 1).',
     // REST akıllı priz
     restControl: 'Kontrol',
