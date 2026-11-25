@@ -1,0 +1,16 @@
+name: Temporary Ruff format diagnostic
+on:
+  pull_request:
+    paths:
+      - backend/app/services/bambu_cloud.py
+      - .github/workflows/ruff-format-diagnostic.yml
+jobs:
+  ruff-format-diagnostic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: pip install "ruff==0.15.20"
+      - run: ruff format --diff backend/app/services/bambu_cloud.py
