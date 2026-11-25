@@ -101,6 +101,19 @@
 - No local tests or builds were run. GitHub Actions workflow runs and commit statuses were empty at the time checked. Required validation: backend tests, frontend lint/typecheck/build, Docker builds, upload-preview-slice/download integration, and output/printer validation.
 
 
+## Profile preset editor fix — 2026-11-24
+
+- Branch: `fix/profile-create-button-and-translations` (based on `main` at `55318a20a288c3ebc715c000dcd1607aa7556c41`).
+- Inspected `frontend/src/pages/ProfilesPage.tsx`, the cloud preset API/schema and field-definition JSON. The Cloud create API requires `base_id`; the Create button correctly cannot submit without a base preset, but the form did not explain that disabled state. Added an inline hint and button tooltip for the missing base selection. Do not remove this requirement: `SlicerSettingCreate.base_id` is required and the backend forwards it to Bambu Cloud.
+- Fixed stale JSON validation: leaving the JSON tab now synchronizes the canonical settings object and clears parse errors belonging to discarded JSON text. JSON file imports also clear the parse error and synchronize the editor text.
+- Fixed base-preset changes resetting all existing overrides. The selected preset's `inherits` value is now merged into the existing settings, preserving values entered by the user.
+- Added missing profile-editor translation entries (14 keys) in all 16 supported locale files. This covers the visible `commonSettings`, `currentOverrides`, empty template state and template hint, plus import/export and validation messages.
+- Files changed: `frontend/src/pages/ProfilesPage.tsx`; `frontend/src/i18n/locales/{en,de,es,fr,it,ja,ko,nl,pl,pt-BR,ru,sv,tr,uk,zh-CN,zh-TW}.ts`.
+- Source inspection confirmed API field labels are already human-readable values from `backend/app/data/{filament,process,printer}_fields.json`; they are not i18n keys. The raw `profiles.presets.commonSettings` text was caused by the missing locale entry.
+- Verification so far: all 16 locale files on this branch contain each of the 14 added keys exactly once. Added a regression test in `frontend/src/__tests__/pages/ProfilesPageWiring.test.tsx` covering stale JSON error recovery and the translated Common Settings heading. The frontend parity script, typecheck, tests and build have not yet been run in a local checkout; use PR CI or run `cd frontend && npm run check:i18n && npm run typecheck && npm run test:run && npm run build`.
+- The PR must preserve the mandatory base-preset contract and be tested against both Bambu Cloud authentication states before merge. No local end-to-end cloud profile creation was performed in this session.
+
+
 ## Remaining v1.3.2 transfer — 2026-11-24
 
 - Official upstream release: `maziggy/bambuddy` tag `v1.3.2`, commit `b7d894b57c0a373f66dc0de49680865b02b3aae5` (parent is upstream v1.3.1 commit `1aa7bce166682fde929fec0d535bdaaa22685aad`).
