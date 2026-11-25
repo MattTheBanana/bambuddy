@@ -514,7 +514,7 @@ class TestSlicerSettingVersionParam:
             listing = await cloud.get_slicer_settings(include_public=True)
 
             assert mock_get.await_count == 2
-            params = [call.kwargs["params"] for call in mock_get.await_args_list]
+            params = [await_call.kwargs["params"] for await_call in mock_get.await_args_list]
             assert params[0]["public"] == "false"
             assert params[1]["public"] == "true"
             assert params[0]["version"] == params[1]["version"]
