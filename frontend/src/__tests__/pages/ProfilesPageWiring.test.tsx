@@ -131,7 +131,7 @@ describe('ProfilesPage wiring: cloud presets', () => {
 
     await user.click(await screen.findByRole('button', { name: 'New Preset' }));
     await screen.findByText('Create New Preset');
-    const baseSelect = screen.getByText('Base Preset').parentElement!.querySelector('select')!;
+    const baseSelect = screen.getByText('Base Preset').parentElement!.parentElement!.querySelector('select')!;
     await user.selectOptions(baseSelect, 'GFSA00');
     await user.type(screen.getByText('Preset Name').parentElement!.querySelector('input')!, 'Wiring PLA Fast');
     const create = screen.getByRole('button', { name: 'Create' });
@@ -168,7 +168,7 @@ describe('ProfilesPage wiring: cloud presets', () => {
     render(<ProfilesPage />);
     await user.click(await screen.findByRole('button', { name: 'New Preset' }));
 
-    const baseSelect = screen.getByText('Base Preset').parentElement!.querySelector('select')!;
+    const baseSelect = screen.getByText('Base Preset').parentElement!.parentElement!.querySelector('select')!;
     await waitFor(() => expect([...baseSelect.options].some(option => option.value === BUILTIN_PRESET.setting_id)).toBe(true));
     expect(catalogRequests).toBe(2);
   });
@@ -205,7 +205,7 @@ describe('ProfilesPage wiring: cloud presets', () => {
 
     await user.click(await screen.findByRole('button', { name: 'New Preset' }));
     await screen.findByText('Create New Preset');
-    const baseSelect = screen.getByText('Base Preset').parentElement!.querySelector('select')!;
+    const baseSelect = screen.getByText('Base Preset').parentElement!.parentElement!.querySelector('select')!;
     await user.selectOptions(baseSelect, 'GFSA00');
     await user.type(screen.getByText('Preset Name').parentElement!.querySelector('input')!, 'Recovered Preset');
 
