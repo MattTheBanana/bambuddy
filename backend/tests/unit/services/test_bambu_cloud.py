@@ -509,6 +509,7 @@ class TestSlicerSettingVersionParam:
             assert mock_get.await_count == 1
             params = mock_get.call_args.kwargs["params"]
             assert params["public"] == "true"
+            assert params["private"] == "true"
             assert params["version"]
             assert listing["printer"]["private"] == [private_printer]
             assert listing["print"]["private"] == [private_process]
@@ -534,6 +535,7 @@ class TestSlicerSettingVersionParam:
 
             assert mock_get.await_count == 1
             assert mock_get.call_args.kwargs["params"]["public"] == "false"
+            assert mock_get.call_args.kwargs["params"]["private"] == "true"
 
     @pytest.mark.asyncio
     async def test_get_setting_detail_sends_version_param(self):
