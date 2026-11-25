@@ -519,7 +519,7 @@ class TestSlicerSettingVersionParam:
             assert params[1]["public"] == "true"
             assert params[0]["version"] == params[1]["version"]
             assert listing["printer"]["private"] == [private_printer]
-            assert listing["process"]["private"] == [private_process]
+            assert listing["print"]["private"] == [private_process]
             assert listing["filament"]["private"] == [private_filament]
             assert listing["printer"]["public"] == [public_printer]
             assert listing["print"]["public"] == [public_process]
