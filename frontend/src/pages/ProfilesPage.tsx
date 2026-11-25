@@ -1325,7 +1325,7 @@ function CreatePresetModal({
   const [presetCatalog, setPresetCatalog] = useState(allPresets);
   const [isRefreshingCatalog, setIsRefreshingCatalog] = useState(false);
   const [catalogRefreshError, setCatalogRefreshError] = useState<string | null>(null);
-  const autoRefreshAttempted = useRef(false);
+  const autoRefreshAttempted = useRef(new Set<string>());
 
   // Keep the modal's catalog in sync with the page query, but allow an
   // explicit uncached fetch when the cached catalog has no stock presets.
@@ -1354,19 +1354,6 @@ function CreatePresetModal({
       setIsRefreshingCatalog(false);
     }
   }, [queryClient]);
-
-  // A stale in-memory query can survive while the backend has been upgraded.
-  // Retry once when opening the editor if the catalog contains no built-ins.
-  const builtInPresetCount = useMemo(
-    () => [...presetCatalog.filament, ...presetCatalog.process, ...presetCatalog.printer]
-      .filter(preset => !preset.is_custom).length,
-    [presetCatalog],
-  );
-  useEffect(() => {
-    if (builtInPresetCount > 0 || autoRefreshAttempted.current) return;
-    autoRefreshAttempted.current = true;
-    void refreshPresetCatalog();
-  }, [builtInPresetCount, refreshPresetCatalog]);
 
   // Editing mode if initialData has setting_id
   const isEditMode = !!initialData?.setting_id;
@@ -1486,6 +1473,14 @@ function CreatePresetModal({
       .filter(p => !p.is_custom)
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [presetCatalog, presetType]);
+
+  // A stale in-memory query can survive while the backend has been upgraded.
+  // Retry once per preset type when that type has no built-in base choices.
+  useEffect(() => {
+    if (availableBasePresets.length > 0 || autoRefreshAttempted.current.has(presetType)) return;
+    autoRefreshAttempted.current.add(presetType);
+    void refreshPresetCatalog();
+  }, [availableBasePresets.length, presetType, refreshPresetCatalog]);
 
   // Keep the selected base in the override object without discarding values
   // the user has already entered when they switch to another base preset.
