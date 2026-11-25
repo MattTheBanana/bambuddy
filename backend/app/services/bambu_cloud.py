@@ -866,8 +866,7 @@ class BambuCloudService:
                 # account/region restrictions are diagnosable from the logs.
                 body = (response.text or "")[:500]
                 raise BambuCloudError(
-                    f"Failed to get settings (public={str(public).lower()}): "
-                    f"HTTP {response.status_code} {body}",
+                    f"Failed to get settings (public={str(public).lower()}): HTTP {response.status_code} {body}",
                     status_code=response.status_code,
                 )
 
