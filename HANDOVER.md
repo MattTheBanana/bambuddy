@@ -152,3 +152,14 @@ The version remains `1.3.2`; the Wave configuration and Web Slicer test expectat
 
 - No local backend/frontend/Docker build or test run was available during this transfer.
 - PR #23 is still a draft review PR. Re-check GitHub Actions on the latest branch commit, then run/confirm backend tests, frontend lint/typecheck/tests/build, Docker build, and an end-to-end Web Slicer upload → preview → slice → download test before marking ready or merging.
+
+
+## PR #23 merge-conflict resolution — 2026-11-25
+
+- Re-checked PR #23 against the current `main`. Its merge base was `55318a20a288c3ebc715c000dcd1607aa7556c41`; `main` had since advanced through PR #24 to merge commit `6562155d748be40d40daeeb79c1e2cfcbf0a4bb5`.
+- The overlapping changes were `HANDOVER.md` and all 16 supported locale files under `frontend/src/i18n/locales/`. The earlier handover-only reconciliation was therefore incomplete.
+- Kept the complete current `main` handover content and appended the v1.3.2 transfer/reconciliation history.
+- Merged all 14 profile-editor translation keys introduced on `main` into each of the 16 PR locale files, while retaining the v1.3.2 locale additions. Verified every one of the 14 keys occurs exactly once in every locale file.
+- Created merge commit `15c34846309d40863ecd67b84165235e9f88c367` with current `main` (`6562155d748be40d40daeeb79c1e2cfcbf0a4bb5`) as first parent and the resolved v1.3.2 branch (`96adfb5e35c07ce18760829109f65a8efb6c0157`) as second parent. The resulting tree starts from current `main` and overlays all 144 files changed by PR #23 from the resolved branch, retaining both sides of the overlaps.
+- Verification after the merge commit: GitHub reports PR #23 `mergeable=true`; compare status is `ahead`, 21 commits ahead / 0 behind, with 144 changed files. PR #23 remains open and has not been merged.
+- No backend/frontend test suite, build, Docker build or Web Slicer end-to-end test was run as part of this conflict-resolution pass. Confirm CI and the previously listed smoke tests before merging.
