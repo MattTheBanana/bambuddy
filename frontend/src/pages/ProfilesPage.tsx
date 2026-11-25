@@ -1341,7 +1341,12 @@ function CreatePresetModal({
       queryClient.setQueryData(['cloudSettings'], latest);
       setPresetCatalog(latest);
 
-      const builtInCount = [...latest.filament, ...latest.process, ...latest.printer]
+      const presetsByType: Record<string, SlicerSetting[]> = {
+        filament: latest.filament,
+        print: latest.process,
+        printer: latest.printer,
+      };
+      const builtInCount = (presetsByType[presetType] || [])
         .filter(preset => !preset.is_custom).length;
       if (builtInCount === 0) {
         setCatalogRefreshError(
@@ -1353,7 +1358,7 @@ function CreatePresetModal({
     } finally {
       setIsRefreshingCatalog(false);
     }
-  }, [queryClient]);
+  }, [presetType, queryClient]);
 
   // Editing mode if initialData has setting_id
   const isEditMode = !!initialData?.setting_id;
