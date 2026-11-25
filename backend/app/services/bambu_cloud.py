@@ -832,9 +832,7 @@ class BambuCloudService:
         except httpx.RequestError as e:
             raise BambuCloudError(f"Request failed: {e}")
 
-    async def get_slicer_settings(
-        self, version: str = _SLICER_API_VERSION, *, include_public: bool = False
-    ) -> dict:
+    async def get_slicer_settings(self, version: str = _SLICER_API_VERSION, *, include_public: bool = False) -> dict:
         """
         Get the user's private presets, optionally including public stock presets.
 
