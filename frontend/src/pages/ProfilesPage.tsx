@@ -578,6 +578,10 @@ function PresetDetailModal({
 }) {
   const { showToast } = useToast();
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState<EditorTab>('common');
+  const [presetType, setPresetType] = useState<'filament' | 'print' | 'printer'>(
+    (initialData?.type as 'filament' | 'print' | 'printer') || 'filament'
+  );
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const { data: detail, isLoading } = useQuery<SlicerSettingDetail>({
@@ -1363,10 +1367,6 @@ function CreatePresetModal({
   // Editing mode if initialData has setting_id
   const isEditMode = !!initialData?.setting_id;
 
-  const [activeTab, setActiveTab] = useState<EditorTab>('common');
-  const [presetType, setPresetType] = useState<'filament' | 'print' | 'printer'>(
-    (initialData?.type as 'filament' | 'print' | 'printer') || 'filament'
-  );
   const [name, setName] = useState(
     initialData?.name
       ? (isEditMode ? initialData.name : `${initialData.name} (Copy)`)
