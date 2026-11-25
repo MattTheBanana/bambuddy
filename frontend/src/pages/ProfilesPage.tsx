@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
@@ -1322,14 +1322,51 @@ function CreatePresetModal({
 }) {
   const { showToast } = useToast();
   const queryClient = useQueryClient();
-
-  // Editing mode if initialData has setting_id
-  const isEditMode = !!initialData?.setting_id;
-
   const [activeTab, setActiveTab] = useState<EditorTab>('common');
   const [presetType, setPresetType] = useState<'filament' | 'print' | 'printer'>(
     (initialData?.type as 'filament' | 'print' | 'printer') || 'filament'
   );
+  const [presetCatalog, setPresetCatalog] = useState(allPresets);
+  const [isRefreshingCatalog, setIsRefreshingCatalog] = useState(false);
+  const [catalogRefreshError, setCatalogRefreshError] = useState<string | null>(null);
+  const autoRefreshAttempted = useRef(new Set<string>());
+
+  // Keep the modal's catalog in sync with the page query, but allow an
+  // explicit uncached fetch when the cached catalog has no stock presets.
+  useEffect(() => {
+    setPresetCatalog(allPresets);
+  }, [allPresets]);
+
+  const refreshPresetCatalog = useCallback(async () => {
+    setIsRefreshingCatalog(true);
+    setCatalogRefreshError(null);
+    try {
+      const latest = await api.getCloudSettings();
+      queryClient.setQueryData(['cloudSettings'], latest);
+      setPresetCatalog(latest);
+
+      const presetsByType: Record<string, SlicerSetting[]> = {
+        filament: latest.filament,
+        print: latest.process,
+        printer: latest.printer,
+      };
+      const builtInCount = (presetsByType[presetType] || [])
+        .filter(preset => !preset.is_custom).length;
+      if (builtInCount === 0) {
+        setCatalogRefreshError(
+          'Bambu Cloud returned zero built-in presets. Check the backend log for the public stock preset counts.'
+        );
+      }
+    } catch (error) {
+      setCatalogRefreshError(error instanceof Error ? error.message : 'Failed to refresh the Bambu Cloud preset catalog.');
+    } finally {
+      setIsRefreshingCatalog(false);
+    }
+  }, [presetType, queryClient]);
+
+  // Editing mode if initialData has setting_id
+  const isEditMode = !!initialData?.setting_id;
+
   const [name, setName] = useState(
     initialData?.name
       ? (isEditMode ? initialData.name : `${initialData.name} (Copy)`)
@@ -1357,12 +1394,12 @@ function CreatePresetModal({
   // Fetch ALL preset details for the current type to discover all available fields
   const presetsOfType = useMemo(() => {
     const typeMap: Record<string, SlicerSetting[]> = {
-      filament: allPresets.filament,
-      print: allPresets.process,
-      printer: allPresets.printer,
+      filament: presetCatalog.filament,
+      print: presetCatalog.process,
+      printer: presetCatalog.printer,
     };
     return typeMap[presetType] || [];
-  }, [allPresets, presetType]);
+  }, [presetCatalog, presetType]);
 
   // Only fetch details for USER presets (not Bambu's built-in ones which return 500)
   const userPresetsOfType = useMemo(() => {
@@ -1433,14 +1470,22 @@ function CreatePresetModal({
   // from setting_id prefixes, which are an upstream implementation detail.
   const availableBasePresets = useMemo(() => {
     const typeMap: Record<string, SlicerSetting[]> = {
-      filament: allPresets.filament,
-      print: allPresets.process,
-      printer: allPresets.printer,
+      filament: presetCatalog.filament,
+      print: presetCatalog.process,
+      printer: presetCatalog.printer,
     };
     return (typeMap[presetType] || [])
       .filter(p => !p.is_custom)
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [allPresets, presetType]);
+  }, [presetCatalog, presetType]);
+
+  // A stale in-memory query can survive while the backend has been upgraded.
+  // Retry once per preset type when that type has no built-in base choices.
+  useEffect(() => {
+    if (availableBasePresets.length > 0 || autoRefreshAttempted.current.has(presetType)) return;
+    autoRefreshAttempted.current.add(presetType);
+    void refreshPresetCatalog();
+  }, [availableBasePresets.length, presetType, refreshPresetCatalog]);
 
   // Keep the selected base in the override object without discarding values
   // the user has already entered when they switch to another base preset.
@@ -1834,7 +1879,18 @@ function CreatePresetModal({
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-bambu-gray mb-1">{t('profiles.presets.basePreset')}</label>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <label className="block text-sm text-bambu-gray">{t('profiles.presets.basePreset')}</label>
+                  <button
+                    type="button"
+                    onClick={() => void refreshPresetCatalog()}
+                    disabled={isRefreshingCatalog}
+                    className="inline-flex items-center gap-1 text-xs text-bambu-gray hover:text-white disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${isRefreshingCatalog ? 'animate-spin' : ''}`} />
+                    {t('profiles.cloudView.refresh')}
+                  </button>
+                </div>
                 <select
                   value={baseId}
                   onChange={(e) => setBaseId(e.target.value)}
@@ -1849,6 +1905,22 @@ function CreatePresetModal({
                   <p className="mt-1 text-xs text-amber-400" role="status">
                     {t('profiles.presets.basePresetRequired')}
                   </p>
+                )}
+                {availableBasePresets.length === 0 && (
+                  <div className="mt-2 space-y-1" role="status" aria-live="polite">
+                    <p className="text-xs text-amber-400">
+                      {t('profiles.cloudView.noPresetsFound')} — {t('profiles.cloudView.showingCount', {
+                        showing: availableBasePresets.length,
+                        total: presetsOfType.length,
+                      })}
+                    </p>
+                    <p className="text-xs text-bambu-gray-dark">
+                      Catalog count: {presetsOfType.length}; custom: {presetsOfType.filter(preset => preset.is_custom).length}; built-in: {availableBasePresets.length}.
+                    </p>
+                    {catalogRefreshError && (
+                      <p className="text-xs text-red-400 break-words" role="alert">{catalogRefreshError}</p>
+                    )}
+                  </div>
                 )}
               </div>
               <div>

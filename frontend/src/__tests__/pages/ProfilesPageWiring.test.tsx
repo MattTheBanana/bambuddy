@@ -131,7 +131,7 @@ describe('ProfilesPage wiring: cloud presets', () => {
 
     await user.click(await screen.findByRole('button', { name: 'New Preset' }));
     await screen.findByText('Create New Preset');
-    const baseSelect = screen.getByText('Base Preset').parentElement!.querySelector('select')!;
+    const baseSelect = screen.getByText('Base Preset').parentElement!.parentElement!.querySelector('select')!;
     await user.selectOptions(baseSelect, 'GFSA00');
     await user.type(screen.getByText('Preset Name').parentElement!.querySelector('input')!, 'Wiring PLA Fast');
     const create = screen.getByRole('button', { name: 'Create' });
@@ -151,6 +151,43 @@ describe('ProfilesPage wiring: cloud presets', () => {
     });
   });
 
+  it('refreshes the cloud catalog when the initial response has no built-in base presets', async () => {
+    const user = userEvent.setup();
+    let catalogRequests = 0;
+    server.use(
+      http.get('*/api/v1/cloud/settings', () => {
+        catalogRequests += 1;
+        return HttpResponse.json(
+          catalogRequests === 1
+            ? { filament: [], printer: [], process: [] }
+            : { filament: [BUILTIN_PRESET], printer: [], process: [] },
+        );
+      }),
+    );
+
+    render(<ProfilesPage />);
+    await user.click(await screen.findByRole('button', { name: 'New Preset' }));
+
+    const baseSelect = screen.getByText('Base Preset').parentElement!.parentElement!.querySelector('select')!;
+    await waitFor(() => expect([...baseSelect.options].some(option => option.value === BUILTIN_PRESET.setting_id)).toBe(true));
+    expect(catalogRequests).toBe(2);
+  });
+
+  it('shows per-type catalog counts when a fresh request still has no built-in presets', async () => {
+    const user = userEvent.setup();
+    server.use(
+      http.get('*/api/v1/cloud/settings', () =>
+        HttpResponse.json({ filament: [], printer: [], process: [] }),
+      ),
+    );
+
+    render(<ProfilesPage />);
+    await user.click(await screen.findByRole('button', { name: 'New Preset' }));
+
+    expect(await screen.findByText(/Catalog count: 0; custom: 0; built-in: 0\./)).toBeInTheDocument();
+    expect(await screen.findByText(/Bambu Cloud returned zero built-in presets/)).toBeInTheDocument();
+  });
+
   it('Create stays disabled without a base preset, so nothing is sent', async () => {
     const user = userEvent.setup();
     render(<ProfilesPage />);
@@ -168,7 +205,7 @@ describe('ProfilesPage wiring: cloud presets', () => {
 
     await user.click(await screen.findByRole('button', { name: 'New Preset' }));
     await screen.findByText('Create New Preset');
-    const baseSelect = screen.getByText('Base Preset').parentElement!.querySelector('select')!;
+    const baseSelect = screen.getByText('Base Preset').parentElement!.parentElement!.querySelector('select')!;
     await user.selectOptions(baseSelect, 'GFSA00');
     await user.type(screen.getByText('Preset Name').parentElement!.querySelector('input')!, 'Recovered Preset');
 
