@@ -877,15 +877,24 @@ class BambuCloudService:
             # public=true for stock presets and private=true for account presets.
             listing = await fetch_visibility_tier(include_public)
             if include_public:
-                public_counts = {kind: len(listing[kind]["public"]) for kind in _SLICER_SETTING_TYPES}
-                if not any(public_counts.values()):
+                catalog_counts = {
+                    kind: {
+                        "built_in": len(listing[kind]["public"]),
+                        "custom": len(listing[kind]["private"]),
+                    }
+                    for kind in _SLICER_SETTING_TYPES
+                }
+                logger.info(
+                    "Bambu Cloud preset catalog counts for version %s: %s",
+                    version,
+                    catalog_counts,
+                )
+                empty_types = [kind for kind, counts in catalog_counts.items() if counts["built_in"] == 0]
+                if empty_types:
                     logger.warning(
-                        "Bambu Cloud returned no public stock presets for version %s (types: %s)",
-                        version,
-                        public_counts,
+                        "Bambu Cloud returned no public stock presets for: %s",
+                        ", ".join(empty_types),
                     )
-                else:
-                    logger.debug("Bambu Cloud public stock preset counts: %s", public_counts)
             return listing
 
         except httpx.RequestError as e:
