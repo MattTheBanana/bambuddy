@@ -484,8 +484,8 @@ class TestSlicerSettingVersionParam:
         return cloud
 
     @pytest.mark.asyncio
-    async def test_get_slicer_settings_fetches_both_visibility_tiers(self):
-        """Public stock IDs and private custom presets are both required by Profiles."""
+    async def test_get_slicer_settings_fetches_full_catalog_in_one_request(self):
+        """The public=true response includes both stock and account presets."""
         cloud = self._auth()
         private_printer = {"setting_id": "PMUS-user", "name": "My X1C"}
         private_process = {"setting_id": "PPUS-user", "name": "My 0.20mm"}
@@ -494,30 +494,23 @@ class TestSlicerSettingVersionParam:
         public_process = {"setting_id": "GP001", "name": "0.20mm Standard"}
         public_filament = {"setting_id": "GFSA00", "name": "Generic PLA"}
 
-        private_response = MagicMock()
-        private_response.status_code = 200
-        private_response.json.return_value = {
-            "printer": {"private": [private_printer], "public": []},
-            "print": {"private": [private_process], "public": []},
-            "filament": {"private": [private_filament], "public": []},
-        }
-        public_response = MagicMock()
-        public_response.status_code = 200
-        public_response.json.return_value = {
-            "printer": {"private": [], "public": [public_printer]},
-            "print": {"private": [], "public": [public_process]},
-            "filament": {"private": [], "public": [public_filament]},
+        response = MagicMock()
+        response.status_code = 200
+        response.json.return_value = {
+            "printer": {"private": [private_printer], "public": [public_printer]},
+            "print": {"private": [private_process], "public": [public_process]},
+            "filament": {"private": [private_filament], "public": [public_filament]},
         }
 
         with patch.object(cloud._client, "get", new_callable=AsyncMock) as mock_get:
-            mock_get.side_effect = [private_response, public_response]
+            mock_get.return_value = response
             listing = await cloud.get_slicer_settings(include_public=True)
 
-            assert mock_get.await_count == 2
-            params = [await_call.kwargs["params"] for await_call in mock_get.await_args_list]
-            assert params[0]["public"] == "false"
-            assert params[1]["public"] == "true"
-            assert params[0]["version"] == params[1]["version"]
+            assert mock_get.await_count == 1
+            params = mock_get.call_args.kwargs["params"]
+            assert params["public"] == "true"
+            assert params["private"] == "true"
+            assert params["version"]
             assert listing["printer"]["private"] == [private_printer]
             assert listing["print"]["private"] == [private_process]
             assert listing["filament"]["private"] == [private_filament]
@@ -542,6 +535,7 @@ class TestSlicerSettingVersionParam:
 
             assert mock_get.await_count == 1
             assert mock_get.call_args.kwargs["params"]["public"] == "false"
+            assert mock_get.call_args.kwargs["params"]["private"] == "true"
 
     @pytest.mark.asyncio
     async def test_get_setting_detail_sends_version_param(self):

@@ -836,11 +836,11 @@ class BambuCloudService:
         """
         Get the user's private presets, optionally including public stock presets.
 
-        Bambu's API applies the public query parameter as a visibility
-        selector. public=false returns user presets and leaves the public
-        arrays empty; public=true returns the stock presets used as base_id
-        choices when creating a Cloud preset. Callers that need the complete
-        catalog opt in with include_public=True.
+        Bambu's API applies separate public/private query selectors. The
+        public=true flag adds stock presets to the public arrays, while
+        private=true includes the account's own presets in private arrays.
+        Callers that need stock base_id choices opt in with include_public=True;
+        the default keeps private-only behavior for cloud sync consumers.
 
         Args:
             version: Slicer version string. Bambu's API requires the XX.YY.ZZ.WW
@@ -856,7 +856,7 @@ class BambuCloudService:
             response = await self._client.get(
                 f"{self.base_url}/v1/iot-service/api/slicer/setting",
                 headers=self._get_headers(),
-                params={"version": version, "public": str(public).lower()},
+                params={"version": version, "public": str(public).lower(), "private": "true"},
             )
 
             if await self._note_response(response):
@@ -873,29 +873,20 @@ class BambuCloudService:
             return _slicer_settings_listing(_cloud_json(response))
 
         try:
-            private_listing = await fetch_visibility_tier(False)
-            if not include_public:
-                return private_listing
-
-            # The Cloud preset editor needs the public stock IDs for base_id.
-            # Some Cloud regions or API versions may include both buckets in
-            # either response, so merge and deduplicate by stable preset ID.
-            public_listing = await fetch_visibility_tier(True)
-            for preset_type in _SLICER_SETTING_TYPES:
-                for visibility in ("private", "public"):
-                    merged: list[dict] = []
-                    seen: set[str] = set()
-                    for entry in private_listing[preset_type][visibility] + public_listing[preset_type][visibility]:
-                        identity = entry.get("setting_id") or entry.get("id") or entry.get("name")
-                        if identity is not None:
-                            identity = str(identity)
-                            if identity in seen:
-                                continue
-                            seen.add(identity)
-                        merged.append(entry)
-                    private_listing[preset_type][visibility] = merged
-
-            return private_listing
+            # Request both visibility tiers in one round trip. Bambu documents
+            # public=true for stock presets and private=true for account presets.
+            listing = await fetch_visibility_tier(include_public)
+            if include_public:
+                public_counts = {kind: len(listing[kind]["public"]) for kind in _SLICER_SETTING_TYPES}
+                if not any(public_counts.values()):
+                    logger.warning(
+                        "Bambu Cloud returned no public stock presets for version %s (types: %s)",
+                        version,
+                        public_counts,
+                    )
+                else:
+                    logger.debug("Bambu Cloud public stock preset counts: %s", public_counts)
+            return listing
 
         except httpx.RequestError as e:
             raise BambuCloudError(f"Request failed: {e}") from e

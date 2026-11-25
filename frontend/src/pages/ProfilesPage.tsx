@@ -1428,8 +1428,9 @@ function CreatePresetModal({
     }
   }, [settingsObj, activeTab]);
 
-  // Get presets filtered by selected type - only built-in presets allowed as base
-  // (Bambu Cloud only allows custom presets to inherit from built-in presets)
+  // Get presets filtered by selected type - only built-in presets allowed as base.
+  // Use the backend's explicit visibility classification instead of guessing
+  // from setting_id prefixes, which are an upstream implementation detail.
   const availableBasePresets = useMemo(() => {
     const typeMap: Record<string, SlicerSetting[]> = {
       filament: allPresets.filament,
@@ -1437,7 +1438,7 @@ function CreatePresetModal({
       printer: allPresets.printer,
     };
     return (typeMap[presetType] || [])
-      .filter(p => !isUserPreset(p.setting_id)) // Only built-in presets
+      .filter(p => !p.is_custom)
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [allPresets, presetType]);
 

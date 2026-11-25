@@ -62,13 +62,11 @@ async def test_the_profiles_page_lists_the_presets_the_account_has():
     with patch.object(cloud_routes, "build_authenticated_cloud", AsyncMock(return_value=service)):
         result = await cloud_routes.get_slicer_settings(db=MagicMock(), current_user=None)
 
-    # Cloud Profile creation needs the public stock catalogue for base_id;
-    # other cloud consumers retain the service's private-only default.
-    assert service._client.get.await_count == 2
-    params = [request.kwargs["params"] for request in service._client.get.await_args_list]
-    assert params[0]["public"] == "false"
-    assert params[1]["public"] == "true"
-    assert params[0]["version"] == params[1]["version"]
+    # The public=true response includes both stock and account presets.
+    assert service._client.get.await_count == 1
+    params = service._client.get.await_args.kwargs["params"]
+    assert params["public"] == "true"
+    assert params["version"]
 
     assert [s.name for s in result.printer] == ["Bambu Lab X1C 0.4 nozzle"]
     assert result.printer[0].is_custom is False  # public preset: valid base preset
