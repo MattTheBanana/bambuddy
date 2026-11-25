@@ -112,3 +112,43 @@
 - Source inspection confirmed API field labels are already human-readable values from `backend/app/data/{filament,process,printer}_fields.json`; they are not i18n keys. The raw `profiles.presets.commonSettings` text was caused by the missing locale entry.
 - Verification so far: all 16 locale files on this branch contain each of the 14 added keys exactly once. Added a regression test in `frontend/src/__tests__/pages/ProfilesPageWiring.test.tsx` covering stale JSON error recovery and the translated Common Settings heading. The frontend parity script, typecheck, tests and build have not yet been run in a local checkout; use PR CI or run `cd frontend && npm run check:i18n && npm run typecheck && npm run test:run && npm run build`.
 - The PR must preserve the mandatory base-preset contract and be tested against both Bambu Cloud authentication states before merge. No local end-to-end cloud profile creation was performed in this session.
+
+
+## Remaining v1.3.2 transfer — 2026-11-24
+
+- Official upstream release: `maziggy/bambuddy` tag `v1.3.2`, commit `b7d894b57c0a373f66dc0de49680865b02b3aae5` (parent is upstream v1.3.1 commit `1aa7bce166682fde929fec0d535bdaaa22685aad`).
+- Existing selective feature port remains in PR #21 / merge commit `55318a20a288c3ebc715c000dcd1607aa7556c41`.
+- Remaining port branch: `port/remaining-v1.3.2`; initial port commit: `acc95480c659136b0b9403222ef75dac1437b7bc`; review PR #23.
+- Compared the full upstream v1.3.1 → v1.3.2 delta (300 changed paths) against the fork's changes. Seventy-three overlapping paths were already handled by PR #21. The other three overlaps were reconciled deliberately:
+  - `backend/app/core/config.py`: set `APP_VERSION = "1.3.2"` and retained `wave_overhangs_api_url`.
+  - `backend/app/services/bambu_cloud.py`: added upstream null preset-category/list normalization while retaining the fork's `public=false` request parameter and detailed non-200 error handling.
+  - `frontend/src/__tests__/pages/SettingsPage.test.tsx`: retained the fork's version and its Web Slicer sidebar expectations.
+- Ported the other 111 non-overlapping upstream paths, including backend fixes/tests, frontend source/tests, PWA source assets, Dockerfile, fonts, and changelog.
+- Deliberately did not copy the 113 generated `static/assets/*` files. They must be regenerated from the fork's combined frontend source so the custom Web Slicer is included; do not copy the upstream prebuilt bundle over the fork's bundle.
+- A full upstream PR (#22) was opened as a draft to test the merge and GitHub reported conflicts. It was closed without merging; branch `sync/official-v1.3.2-full` remains as an audit reference. Do not merge it.
+- No local build or tests were run in this environment. PR #23 is a draft pending backend tests, frontend lint/typecheck/tests/build, Docker build, regenerated static assets, and Web Slicer upload → preview → slice → download verification.
+- Preserve the Web Slicer, Wave Overhangs, relaxed password validation (password login remains enabled), `local_login_enabled`, Docker/sidecar changes, and all other fork-only behavior in any follow-up resolution.
+
+
+## Full v1.3.2 overlap reconciliation — 2026-11-24
+
+Follow-up audit corrected the initial path-level review: PR #21 changed several of the same files as upstream v1.3.2 but did not include every upstream hunk. I compared the shared files against the common upstream v1.3.1 base and merged their upstream v1.3.2 deltas into this branch, retaining fork-specific hunks. In total, the reconciliation covered the 31 shared paths with remaining upstream hunks, including:
+
+- Printer UI and firmware support: H2/H3 exhaust-fan naming, access-code show/hide, printer connection-check retry UI, any-model printer dispatch priority (from #21) retained.
+- Slicing and queue reliability: refuse embedded-settings fallback when source/target printer models differ; select queue printers by nozzle diameter; reset upload backoff on reconnect; guard MQTT stale detection during FTP upload; filter monitor-only MQTT smart plugs from power-on.
+- Filament and inventory: recognize support-filament suffix/material matching; treat firmware's `00000000` blank-tray colour as no filament; restore the assigning user's cloud identity when replaying a spool preset; preserve spool IDs across CSV migration/import; keep decimal-comma CSV support.
+- Archive/maintenance/export: complete archive G-code fingerprints and resend matching; lifetime MQTT energy settings/migrations; maintenance-log backfill/FK and CSV formula safety; archive aggregate-cost fields.
+- Frontend/API/locales: archive cost and lifetime-energy types, spool CSV ID type, printer-dispatch settings types, user-group role demotion payload fix, and matching translations across locales.
+- SQLite FK cleanup: include the new assigning-user relationship.
+- Tests: merge upstream's Settings-page tests while retaining the fork's Web Slicer assertions; align maintenance-log formula-safety test with the final helper return behavior.
+
+Files whose upstream changes were already present as a superset in the fork were left unchanged (notably `slicer-api/README.md`, which already includes the host/bridge binding guidance plus the optional Wave port restriction). `slicer-api/.env.example` now includes upstream's full security note while preserving `WAVE_API_PORT` and `WAVE_OVERHANGS_VERSION`.
+
+The Cloud preset normalizer on this branch is behaviorally equivalent to upstream's v1.3.2 normalizer. It is called on the successful preset-list response while retaining the fork's `public=false` request and detailed non-200 response body.
+
+The version remains `1.3.2`; the Wave configuration and Web Slicer test expectations remain present. Generated `static/assets/*` artifacts were intentionally not copied; regenerate them from this fork's complete frontend source in CI/build to avoid dropping Web Slicer.
+
+## Validation status
+
+- No local backend/frontend/Docker build or test run was available during this transfer.
+- PR #23 is still a draft review PR. Re-check GitHub Actions on the latest branch commit, then run/confirm backend tests, frontend lint/typecheck/tests/build, Docker build, and an end-to-end Web Slicer upload → preview → slice → download test before marking ready or merging.
