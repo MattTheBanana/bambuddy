@@ -578,10 +578,6 @@ function PresetDetailModal({
 }) {
   const { showToast } = useToast();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<EditorTab>('common');
-  const [presetType, setPresetType] = useState<'filament' | 'print' | 'printer'>(
-    (initialData?.type as 'filament' | 'print' | 'printer') || 'filament'
-  );
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const { data: detail, isLoading } = useQuery<SlicerSettingDetail>({
@@ -1326,6 +1322,10 @@ function CreatePresetModal({
 }) {
   const { showToast } = useToast();
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState<EditorTab>('common');
+  const [presetType, setPresetType] = useState<'filament' | 'print' | 'printer'>(
+    (initialData?.type as 'filament' | 'print' | 'printer') || 'filament'
+  );
   const [presetCatalog, setPresetCatalog] = useState(allPresets);
   const [isRefreshingCatalog, setIsRefreshingCatalog] = useState(false);
   const [catalogRefreshError, setCatalogRefreshError] = useState<string | null>(null);
