@@ -856,7 +856,7 @@ class BambuCloudService:
             response = await self._client.get(
                 f"{self.base_url}/v1/iot-service/api/slicer/setting",
                 headers=self._get_headers(),
-                params={"version": version, "public": str(public).lower()},
+                params={"version": version, "public": str(public).lower(), "private": "true"},
             )
 
             if await self._note_response(response):
