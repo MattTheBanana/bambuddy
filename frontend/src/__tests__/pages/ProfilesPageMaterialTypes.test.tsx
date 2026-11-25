@@ -107,7 +107,7 @@ function GrabQueryClient() {
 async function openCreateModal(user: ReturnType<typeof userEvent.setup>) {
   await user.click(await screen.findByRole('button', { name: 'New Preset' }));
   await screen.findByText('Create New Preset');
-  const baseSelect = screen.getByText('Base Preset').parentElement!.querySelector('select')!;
+  const baseSelect = screen.getByText('Base Preset').parentElement!.parentElement!.querySelector('select')!;
   await user.selectOptions(baseSelect, 'GFSA00');
 }
 
