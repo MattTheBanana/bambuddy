@@ -1420,7 +1420,11 @@ function CreatePresetModal({
   // Sync JSON text with settings object
   useEffect(() => {
     if (activeTab !== 'json') {
+      // The form controls are the source of truth outside the JSON tab. Keep
+      // the JSON editor synchronized and clear parse errors left behind by an
+      // earlier, now-discarded invalid JSON edit.
       setJsonText(JSON.stringify(settingsObj, null, 2));
+      setJsonError(null);
     }
   }, [settingsObj, activeTab]);
 
@@ -1437,21 +1441,23 @@ function CreatePresetModal({
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [allPresets, presetType]);
 
-  // Set inherits field when base preset changes (don't pre-fill all values - they show as placeholders)
-  // In edit mode, don't reset settingsObj - keep the saved values
+  // Keep the selected base in the override object without discarding values
+  // the user has already entered when they switch to another base preset.
+  // In edit mode, preserve the saved setting exactly as it was loaded.
   useEffect(() => {
     if (!baseId) return;
 
     const preset = availableBasePresets.find(p => p.setting_id === baseId);
     if (preset) {
       setBaseName(preset.name);
-      // Don't reset settings in edit mode - keep saved values
-      if (!isEditMode) {
-        setSettingsObj({ inherits: preset.name });
-        setJsonText(JSON.stringify({ inherits: preset.name }, null, 2));
+      if (!isEditMode && settingsObj.inherits !== preset.name) {
+        const nextSettings = { ...settingsObj, inherits: preset.name };
+        setSettingsObj(nextSettings);
+        setJsonText(JSON.stringify(nextSettings, null, 2));
+        setJsonError(null);
       }
     }
-  }, [baseId, availableBasePresets, isEditMode]);
+  }, [baseId, availableBasePresets, isEditMode, settingsObj]);
 
   // Build dynamic fields list: merge API definitions with discovered fields from user presets
   const dynamicFields = useMemo(() => {
@@ -1593,6 +1599,7 @@ function CreatePresetModal({
           const settings = parsed.setting || parsed;
           setSettingsObj(prev => ({ ...prev, ...settings }));
           setJsonText(JSON.stringify({ ...settingsObj, ...settings }, null, 2));
+          setJsonError(null);
           showToast(t('profiles.presets.fileImported'));
         } catch {
           showToast(t('profiles.presets.invalidJsonFile'), 'error');
@@ -1837,6 +1844,11 @@ function CreatePresetModal({
                     <option key={preset.setting_id} value={preset.setting_id}>{preset.name}</option>
                   ))}
                 </select>
+                {!isEditMode && !baseId && (
+                  <p className="mt-1 text-xs text-amber-400" role="status">
+                    {t('profiles.presets.basePresetRequired')}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm text-bambu-gray mb-1">{t('profiles.presets.presetName')}</label>
@@ -1940,6 +1952,8 @@ function CreatePresetModal({
                       const parsed = JSON.parse(event.target?.result as string);
                       const settings = parsed.setting || parsed;
                       setSettingsObj(prev => ({ ...prev, ...settings }));
+                      setJsonText(JSON.stringify({ ...settingsObj, ...settings }, null, 2));
+                      setJsonError(null);
                       showToast(t('profiles.presets.fileImported'));
                     } catch {
                       showToast(t('profiles.presets.invalidJson'), 'error');
@@ -2279,6 +2293,9 @@ function CreatePresetModal({
             <Button
               onClick={() => saveMutation.mutate()}
               disabled={saveMutation.isPending || !name.trim() || (!isEditMode && !baseId) || !!jsonError}
+              title={!isEditMode && !baseId
+                ? t('profiles.presets.basePresetRequired')
+                : jsonError ? t('profiles.presets.invalidJson') : undefined}
               className="flex-1"
             >
               {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : (isEditMode ? <Save className="w-4 h-4" /> : <Plus className="w-4 h-4" />)}

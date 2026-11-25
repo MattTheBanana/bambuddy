@@ -162,6 +162,30 @@ describe('ProfilesPage wiring: cloud presets', () => {
     expect(writes()).toEqual([]);
   });
 
+  it('clears stale JSON errors when returning to Common and shows the translated section title', async () => {
+    const user = userEvent.setup();
+    render(<ProfilesPage />);
+
+    await user.click(await screen.findByRole('button', { name: 'New Preset' }));
+    await screen.findByText('Create New Preset');
+    const baseSelect = screen.getByText('Base Preset').parentElement!.querySelector('select')!;
+    await user.selectOptions(baseSelect, 'GFSA00');
+    await user.type(screen.getByText('Preset Name').parentElement!.querySelector('input')!, 'Recovered Preset');
+
+    const create = screen.getByRole('button', { name: 'Create' });
+    await waitFor(() => expect(create).not.toBeDisabled());
+
+    await user.click(screen.getByRole('button', { name: 'JSON' }));
+    const jsonEditor = document.querySelector('textarea')!;
+    await user.clear(jsonEditor);
+    await user.type(jsonEditor, 'not-json');
+    await waitFor(() => expect(create).toBeDisabled());
+
+    await user.click(screen.getByRole('button', { name: 'Common' }));
+    await waitFor(() => expect(create).not.toBeDisabled());
+    expect(screen.getByText('Common Settings')).toBeInTheDocument();
+  });
+
   it('Edit -> Save sends updateCloudSetting(setting_id, { name, setting })', async () => {
     const user = userEvent.setup();
     render(<ProfilesPage />);
