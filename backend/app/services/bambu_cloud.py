@@ -836,11 +836,11 @@ class BambuCloudService:
         """
         Get the user's private presets, optionally including public stock presets.
 
-        Bambu's API applies the public query parameter as a visibility
-        selector. public=false returns user presets and leaves the public
-        arrays empty; public=true returns the stock presets used as base_id
-        choices when creating a Cloud preset. Callers that need the complete
-        catalog opt in with include_public=True.
+        Bambu's API applies separate public/private query selectors. The
+        public=true flag adds stock presets to the public arrays, while
+        private=true includes the account's own presets in private arrays.
+        Callers that need stock base_id choices opt in with include_public=True;
+        the default keeps private-only behavior for cloud sync consumers.
 
         Args:
             version: Slicer version string. Bambu's API requires the XX.YY.ZZ.WW
@@ -873,10 +873,8 @@ class BambuCloudService:
             return _slicer_settings_listing(_cloud_json(response))
 
         try:
-            # Bambu's public=true response includes the public stock catalogue
-            # and the account's private presets (private defaults to true).
-            # A second public=false request is only needed by private-only
-            # consumers and cannot add anything to this full-catalog response.
+            # Request both visibility tiers in one round trip. Bambu documents
+            # public=true for stock presets and private=true for account presets.
             listing = await fetch_visibility_tier(include_public)
             if include_public:
                 public_counts = {kind: len(listing[kind]["public"]) for kind in _SLICER_SETTING_TYPES}
