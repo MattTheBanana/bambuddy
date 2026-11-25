@@ -511,7 +511,7 @@ class TestSlicerSettingVersionParam:
 
         with patch.object(cloud._client, "get", new_callable=AsyncMock) as mock_get:
             mock_get.side_effect = [private_response, public_response]
-            listing = await cloud.get_slicer_settings()
+            listing = await cloud.get_slicer_settings(include_public=True)
 
             assert mock_get.await_count == 2
             params = [call.kwargs["params"] for call in mock_get.await_args_list]
@@ -524,6 +524,24 @@ class TestSlicerSettingVersionParam:
             assert listing["printer"]["public"] == [public_printer]
             assert listing["print"]["public"] == [public_process]
             assert listing["filament"]["public"] == [public_filament]
+
+    @pytest.mark.asyncio
+    async def test_get_slicer_settings_defaults_to_private_only(self):
+        cloud = self._auth()
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "printer": {"private": [], "public": []},
+            "print": {"private": [], "public": []},
+            "filament": {"private": [], "public": []},
+        }
+
+        with patch.object(cloud._client, "get", new_callable=AsyncMock) as mock_get:
+            mock_get.return_value = mock_response
+            await cloud.get_slicer_settings()
+
+            assert mock_get.await_count == 1
+            assert mock_get.call_args.kwargs["params"]["public"] == "false"
 
     @pytest.mark.asyncio
     async def test_get_setting_detail_sends_version_param(self):
