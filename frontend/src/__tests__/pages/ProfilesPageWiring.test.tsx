@@ -151,6 +151,28 @@ describe('ProfilesPage wiring: cloud presets', () => {
     });
   });
 
+  it('refreshes the cloud catalog when the initial response has no built-in base presets', async () => {
+    const user = userEvent.setup();
+    let catalogRequests = 0;
+    server.use(
+      http.get('*/api/v1/cloud/settings', () => {
+        catalogRequests += 1;
+        return HttpResponse.json(
+          catalogRequests === 1
+            ? { filament: [], printer: [], process: [] }
+            : { filament: [BUILTIN_PRESET], printer: [], process: [] },
+        );
+      }),
+    );
+
+    render(<ProfilesPage />);
+    await user.click(await screen.findByRole('button', { name: 'New Preset' }));
+
+    const baseSelect = screen.getByText('Base Preset').parentElement!.querySelector('select')!;
+    await waitFor(() => expect([...baseSelect.options].some(option => option.value === BUILTIN_PRESET.setting_id)).toBe(true));
+    expect(catalogRequests).toBe(2);
+  });
+
   it('Create stays disabled without a base preset, so nothing is sent', async () => {
     const user = userEvent.setup();
     render(<ProfilesPage />);
