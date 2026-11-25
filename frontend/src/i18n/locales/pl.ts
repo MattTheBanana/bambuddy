@@ -294,7 +294,7 @@ export default {
     addPreflight: {
       checking: 'Sprawdzanie połączenia...',
       warning: 'Część testów połączenia nie powiodła się. Ta drukarka może być widoczna jako offline. Przejrzyj poniższe testy, popraw, co możesz, lub mimo to zapisz.',
-      back: 'Wstecz',
+      checkAgain: 'Sprawdź ponownie',
       saveAnyway: 'Zapisz mimo to',
     },
     editPrinter: 'Edytuj drukarkę',
@@ -303,6 +303,8 @@ export default {
     serialNumber: 'Numer seryjny',
     ipAddress: 'Adres IP / nazwa hosta',
     accessCode: 'Kod dostępu',
+    showAccessCode: 'Pokaż kod dostępu',
+    hideAccessCode: 'Ukryj kod dostępu',
     model: 'Model',
     nozzleCount: 'Liczba dysz',
     autoArchive: 'Automatyczne archiwizowanie',
@@ -1209,6 +1211,8 @@ export default {
       project: 'Projekt: {{name}}',
       runsBadge: 'Wydruki: {{count}}',
       runsBadgeTitle: 'Wydruki łącznie: {{count}} — udane: {{successful}}, nieudane: {{failed}}. Kliknij, aby zobaczyć pełny dziennik wydruków.',
+      // The card's figures for an archive printed more than once (#3609).
+      totalOfRuns: 'Suma wydruków: {{count}}',
       estimated: 'Szacowany: {{time}}',
       actual: 'Rzeczywisty: {{time}}',
       accuracy: 'Dokładność: {{percent}}%',
@@ -5396,6 +5400,7 @@ export default {
     slicerFilamentName: 'Nazwa profilu slicera',
     slicerPreset: 'Profil slicera',
     searchPresets: 'Szukaj profili filamentu...',
+    clearPreset: 'Usuń profil',
     selectedPreset: 'Wybrany',
     noPresetsFound: 'Nie znaleziono profili',
     tempOverrides: 'Nadpisania temperatur',
@@ -6898,6 +6903,9 @@ export default {
     onValue: 'Wartość ON',
     mqttPowerHint: 'Ścieżka JSON wyodrębnia wartość z ładunku JSON (np. „power_l1”). Pozostaw puste, jeśli temat publikuje surowe wartości liczbowe.\nUżyj mnożnika 0.001 dla mW→W, 1000 dla kW→W.',
     mqttEnergyHint: 'Ścieżka JSON wyodrębnia wartość z ładunku JSON. Pozostaw puste dla surowych wartości.\nUżyj mnożnika 0.001 dla Wh→kWh, 1000 dla MWh→kWh.',
+    mqttEnergyTotalPathHint: "np. ENERGY.Total",
+    mqttEnergyTotalHint:
+      "Licznik całkowity, który nigdy się nie zeruje, z tego samego tematu (Tasmota: ENERGY.Total). Energia na wydruk go potrzebuje: licznik dzienny wraca do zera o północy, więc wydruk trwający po północy tracił swoją energię. Pozostaw puste, aby jak dotąd używać powyższej wartości energii dla obu.",
     mqttStateHint: 'Ścieżka JSON wyodrębnia wartość z ładunku JSON. Pozostaw puste dla surowych wartości.\nWartość ON: dokładny ciąg oznaczający „ON”. Pozostaw puste, aby wykrywać automatycznie (ON, true, 1).',
     // REST smart plug
     restControl: 'Sterowanie',

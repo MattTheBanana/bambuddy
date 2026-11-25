@@ -183,7 +183,7 @@ from backend.app.services.telegram_reactions import telegram_reaction_poller
 from backend.app.services.wled import wled_manager
 from backend.app.utils.ams_drying import is_drying_active, temperature_alarm_suppressed
 from backend.app.utils.ams_humidity import ams_humidity_percent
-from backend.app.utils.filament_types import printer_filament_type
+from backend.app.utils.filament_types import printer_filament_type, support_filament_type
 from backend.app.utils.fts_routing import extruder_for_inlet
 from backend.app.utils.local_time import to_naive_utc, utcnow_naive
 from backend.app.utils.print_jobs import is_internal_printer_job
@@ -2320,6 +2320,12 @@ async def on_printer_status_change(printer_id: int, state: PrinterState):
                 name=f"printer-offline-notify-{printer_id}",
             )
     elif state.connected:
+        if prev_connected is False:
+            # A printer back from a dropped connection, often a restart, may
+            # take files again: don't hold it to an upload backoff from
+            # before (#3563). Not on Bambuddy's own start (no previous state).
+            client = printer_manager.get_client(printer_id)
+            print_scheduler.printer_reconnected(printer_id, client.ip_address if client else None)
         # Kept until the relay can actually send online: with its broker down
         # now, the next status update after the reconnect sends it.
         if printer_id in _printer_offline_published and mqtt_relay.enabled and mqtt_relay.connected:
@@ -2817,6 +2823,18 @@ def _slot_feeds_print(printer_id: int, ams_id: int, tray_id: int) -> bool:
     return any(slot.has_filament and slot.holds(ams_id, tray_id) for slot in slots.values())
 
 
+def _tray_reports_no_filament(color: str, tray_type: str) -> bool:
+    """Does this tray report carry no filament data at all?
+
+    No type, and a colour that is either empty or ``00000000``: firmware sends
+    both for a blank slot, and ``00000000`` is what Bambuddy's own slot reset
+    writes. A reconnect mid-print brought it in that form and got past every
+    guard that only knew the empty string (#3526). A clear spool also reports
+    ``00000000``, but always with a type, so it is not blank.
+    """
+    return not tray_type.strip() and color.strip().upper() in ("", "00000000")
+
+
 async def _unlink_stale_assignments(printer_id: int, ams_data: list, printing_now: bool) -> None:
     """Unlink built-in inventory assignments whose slot no longer holds their spool.
 
@@ -3012,11 +3030,21 @@ async def _unlink_stale_assignments(printer_id: int, ams_data: list, printing_no
                         try:
                             from backend.app.api.routes.inventory import (
                                 apply_spool_to_slot_via_mqtt,
+                                load_preset_lookup_user,
                             )
+                            from backend.app.core.auth import is_auth_enabled
+
+                            # Whoever made the assignment: their cloud sign-in
+                            # resolves a custom preset, which nobody's did here,
+                            # so the slot got Generic PLA on insert (#3519). With
+                            # login off the shared sign-in applies, as before.
+                            replay_user = None
+                            if assignment.assigned_by_user_id is not None and await is_auth_enabled(db):
+                                replay_user = await load_preset_lookup_user(db, assignment.assigned_by_user_id)
 
                             configured = await apply_spool_to_slot_via_mqtt(
                                 db=db,
-                                current_user=None,
+                                current_user=replay_user,
                                 spool=assignment.spool,
                                 printer_id=printer_id,
                                 ams_id=assignment.ams_id,
@@ -3061,7 +3089,7 @@ async def _unlink_stale_assignments(printer_id: int, ams_data: list, printing_no
                         # firmware clears colour and type when it unloads a spool
                         # it just emptied. Unlinking here would erase the record
                         # of which spool fed the print so far.
-                        if printing_now and not cur_color.strip() and not cur_type.strip():
+                        if printing_now and _tray_reports_no_filament(cur_color, cur_type):
                             logger.info(
                                 "Auto-unlink skipped: spool %d AMS%d-T%d — tray data cleared during a running print "
                                 "(runout?)",
@@ -3085,8 +3113,7 @@ async def _unlink_stale_assignments(printer_id: int, ams_data: list, printing_no
                         # rather than cancelling it (#3186).
                         if (
                             spool_present(current_tray) is True
-                            and not cur_color.strip()
-                            and not cur_type.strip()
+                            and _tray_reports_no_filament(cur_color, cur_type)
                             and not slot_unlink_grace.is_held(
                                 printer_id,
                                 ("inventory", assignment.ams_id, assignment.tray_id, assignment.spool_id),
@@ -3105,7 +3132,7 @@ async def _unlink_stale_assignments(printer_id: int, ams_data: list, printing_no
                         # unit's bits, colour and type for a moment and lost
                         # four saved assignments that way (#3186); unlink only
                         # if the slot is still blank after the grace period.
-                        if not cur_color.strip() and not cur_type.strip():
+                        if _tray_reports_no_filament(cur_color, cur_type):
                             hold_key = ("inventory", assignment.ams_id, assignment.tray_id, assignment.spool_id)
                             if not slot_unlink_grace.removal_confirmed(printer_id, hold_key):
                                 held.add(hold_key)
@@ -3164,6 +3191,17 @@ async def _unlink_stale_assignments(printer_id: int, ams_data: list, printing_no
                                 lp_type = await db.scalar(select(_LP.filament_type).where(_LP.id == int(lp_ref)))
                                 if lp_type:
                                     spool_types.add(printer_filament_type(lp_type).upper())
+                            # A support spool went in with the slicer's suffix
+                            # ("PLA-S") that none of the above carries (#3559).
+                            # A spool made from a support RFID tray has its
+                            # material as "Support For PLA", so that counts too.
+                            support_name = (
+                                f"{spool.slicer_filament_name or ''} {spool.material or ''} {spool.subtype or ''}"
+                            )
+                            spool_types |= {
+                                support_filament_type(t, spool.slicer_filament, support_name).upper()
+                                for t in spool_types
+                            }
                             if (
                                 _colors_similar(cur_color, spool_color)
                                 and printer_filament_type(cur_type).upper() in spool_types

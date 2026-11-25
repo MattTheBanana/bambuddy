@@ -290,7 +290,7 @@ export default {
     addPreflight: {
       checking: '正在检查连接...',
       warning: '部分连接检查未通过。此打印机可能显示为离线。请查看下方的检查项，尽量修复，或仍然保存。',
-      back: '返回',
+      checkAgain: '重新检查',
       saveAnyway: '仍然保存',
     },
     title: '打印机',
@@ -301,6 +301,8 @@ export default {
     serialNumber: '序列号',
     ipAddress: 'IP 地址 / 主机名',
     accessCode: '访问码',
+    showAccessCode: '显示访问码',
+    hideAccessCode: '隐藏访问码',
     model: '型号',
     nozzleCount: '喷嘴数量',
     autoArchive: '自动归档',
@@ -1202,6 +1204,8 @@ export default {
       project: '项目：{{name}}',
       runsBadge: '{{count}} 次打印',
       runsBadgeTitle: '共 {{count}} 次打印 — 成功 {{successful}} 次，失败 {{failed}} 次。点击查看完整打印记录。',
+      // The card's figures for an archive printed more than once (#3609).
+      totalOfRuns: '{{count}} 次打印的合计',
       estimated: '预计：{{time}}',
       actual: '实际：{{time}}',
       accuracy: '准确度：{{percent}}%',
@@ -5345,6 +5349,7 @@ export default {
     slicerFilamentName: '切片预设名称',
     slicerPreset: '切片预设',
     searchPresets: '搜索耗材预设...',
+    clearPreset: '移除预设',
     selectedPreset: '已选择',
     noPresetsFound: '未找到预设',
     tempOverrides: '温度覆盖',
@@ -6831,6 +6836,9 @@ export default {
     onValue: 'ON值',
     mqttPowerHint: 'JSON路径从JSON负载中提取值（例如"power_l1"）。如果主题发布原始数值，请留空。\n乘数：mW→W使用0.001，kW→W使用1000。',
     mqttEnergyHint: 'JSON路径从JSON负载中提取值。原始值请留空。\n乘数：Wh→kWh使用0.001，MWh→kWh使用1000。',
+    mqttEnergyTotalPathHint: "例如 ENERGY.Total",
+    mqttEnergyTotalHint:
+      "来自同一主题、永不重置的累计计数器（Tasmota：ENERGY.Total）。每次打印的能耗需要它：每日计数器在午夜归零，因此跨越午夜的打印会丢失能耗。留空则像以前一样，将上方的能耗值同时用于两者。",
     mqttStateHint: 'JSON路径从JSON负载中提取值。原始值请留空。\nON值：表示"ON"的确切字符串。留空以自动检测（ON、true、1）。',
     // REST smart plug
     restControl: '控制',

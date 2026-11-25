@@ -290,7 +290,7 @@ export default {
     addPreflight: {
       checking: 'Verificando a conexão...',
       warning: 'Algumas verificações de conexão falharam. Esta impressora pode aparecer como offline. Revise as verificações abaixo, corrija o que puder ou salve mesmo assim.',
-      back: 'Voltar',
+      checkAgain: 'Verificar novamente',
       saveAnyway: 'Salvar mesmo assim',
     },
     title: 'Impressoras',
@@ -301,6 +301,8 @@ export default {
     serialNumber: 'Número de Série',
     ipAddress: 'Endereço IP / Nome do Host',
     accessCode: 'Código de Acesso',
+    showAccessCode: 'Mostrar código de acesso',
+    hideAccessCode: 'Ocultar código de acesso',
     model: 'Modelo',
     nozzleCount: 'Número de Bicos',
     autoArchive: 'Arquivamento Automático',
@@ -1202,6 +1204,8 @@ export default {
       project: 'Projeto: {{name}}',
       runsBadge: '{{count}} impressões',
       runsBadgeTitle: '{{count}} impressões no total — {{successful}} bem-sucedidas, {{failed}} com falha. Clique para ver o histórico completo.',
+      // The card's figures for an archive printed more than once (#3609).
+      totalOfRuns: 'Total de {{count}} impressões',
       estimated: 'Estimado: {{time}}',
       actual: 'Real: {{time}}',
       accuracy: 'Precisão: {{percent}}%',
@@ -5345,6 +5349,7 @@ export default {
     slicerFilamentName: 'Nome do Predefinido do Fatiador',
     slicerPreset: 'Predefinido do Fatiador',
     searchPresets: 'Pesquisar predefinições de filamento...',
+    clearPreset: 'Remover predefinição',
     selectedPreset: 'Selecionado',
     noPresetsFound: 'Nenhuma predefinição encontrada',
     tempOverrides: 'Substituições de Temperatura',
@@ -6832,6 +6837,9 @@ export default {
     onValue: 'Valor ON',
     mqttPowerHint: 'O caminho JSON extrai o valor do payload JSON (ex: "power_l1"). Deixe vazio se o tópico publica valores numéricos brutos.\nUse multiplicador 0.001 para mW→W, 1000 para kW→W.',
     mqttEnergyHint: 'O caminho JSON extrai o valor do payload JSON. Deixe vazio para valores brutos.\nUse multiplicador 0.001 para Wh→kWh, 1000 para MWh→kWh.',
+    mqttEnergyTotalPathHint: "ex.: ENERGY.Total",
+    mqttEnergyTotalHint:
+      "Um contador total que nunca zera, do mesmo tópico (Tasmota: ENERGY.Total). A energia por impressão precisa dele: um contador diário volta a zero à meia-noite, então uma impressão que passava da meia-noite perdia sua energia. Deixe vazio para usar o valor de energia acima para ambos, como antes.",
     mqttStateHint: 'O caminho JSON extrai o valor do payload JSON. Deixe vazio para valores brutos.\nValor ON: a string exata que significa "ON". Deixe vazio para detecção automática (ON, true, 1).',
     // REST smart plug
     restControl: 'Controle',

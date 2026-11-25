@@ -289,6 +289,8 @@ export default {
     serialNumber: '일련번호',
     ipAddress: 'IP 주소 / 호스트명',
     accessCode: '액세스 코드',
+    showAccessCode: '액세스 코드 표시',
+    hideAccessCode: '액세스 코드 숨기기',
     model: '모델',
     nozzleCount: '노즐 수',
     autoArchive: '자동 아카이브',
@@ -944,7 +946,7 @@ export default {
     addPreflight: {
       checking: '연결 확인 중...',
       warning: '일부 연결 확인이 실패했습니다. 이 프린터가 오프라인으로 표시될 수 있습니다. 아래 항목을 검토하고 수정하거나 그냥 저장하세요.',
-      back: '뒤로',
+      checkAgain: '다시 확인',
       saveAnyway: '그냥 저장'
     }
   },
@@ -1187,7 +1189,9 @@ export default {
       edit: '편집',
       delete: '삭제',
       runsBadge: '{{count}}회 인쇄',
-      runsBadgeTitle: '총 {{count}}회 인쇄 — {{successful}}회 성공, {{failed}}회 실패. 전체 인쇄 기록을 보려면 클릭하세요.'
+      runsBadgeTitle: '총 {{count}}회 인쇄 — {{successful}}회 성공, {{failed}}회 실패. 전체 인쇄 기록을 보려면 클릭하세요.',
+      // The card's figures for an archive printed more than once (#3609).
+      totalOfRuns: '{{count}}회 인쇄 합계',
     },
     modal: {
       deleteArchive: '아카이브 삭제',
@@ -5146,6 +5150,7 @@ export default {
     slicerFilamentName: '슬라이서 프리셋 이름',
     slicerPreset: '슬라이서 프리셋',
     searchPresets: '필라멘트 프리셋 검색...',
+    clearPreset: '프리셋 제거',
     selectedPreset: '선택됨',
     noPresetsFound: '프리셋을 찾을 수 없음',
     tempOverrides: '온도 재정의',
@@ -6571,6 +6576,9 @@ export default {
     onValue: 'ON 값',
     mqttPowerHint: 'JSON 경로는 JSON 페이로드에서 값을 추출합니다 (예: "power_l1"). 토픽이 원시 숫자 값을 게시하면 비워두세요.\nmW→W에는 배수 0.001, kW→W에는 1000을 사용하세요.',
     mqttEnergyHint: 'JSON 경로는 JSON 페이로드에서 값을 추출합니다. 원시 값에는 비워두세요.\nWh→kWh에는 배수 0.001, MWh→kWh에는 1000을 사용하세요.',
+    mqttEnergyTotalPathHint: "예: ENERGY.Total",
+    mqttEnergyTotalHint:
+      "같은 토픽의 초기화되지 않는 누적 카운터(Tasmota: ENERGY.Total). 출력별 에너지 계산에 필요합니다. 일일 카운터는 자정에 0으로 돌아가므로 자정을 넘긴 출력은 에너지가 사라졌습니다. 비워 두면 이전처럼 위의 에너지 값을 둘 다에 사용합니다.",
     mqttStateHint: 'JSON 경로는 JSON 페이로드에서 값을 추출합니다. 원시 값에는 비워두세요.\nON 값: "ON"을 의미하는 정확한 문자열. 자동 감지(ON, true, 1)를 위해 비워두세요.',
     restControl: '제어',
     restOnUrl: '켜기 URL',

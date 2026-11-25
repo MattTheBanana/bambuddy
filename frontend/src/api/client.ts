@@ -984,6 +984,13 @@ export interface Archive {
   total_filament_actual_grams: number | null;
   successful_run_count: number;
   failed_run_count: number;
+  // What all its runs cost, summed as Statistics does (#3609); null where no
+  // run has the figure. The archive's own cost and energy stay the file's and
+  // the first run's.
+  total_cost?: number | null;
+  total_energy_kwh?: number | null;
+  total_energy_cost?: number | null;
+  total_wear_cost?: number | null;
 }
 
 export interface ArchiveSlim {
@@ -2447,6 +2454,8 @@ export interface SmartPlug {
   mqtt_energy_topic: string | null;  // Topic for energy data
   mqtt_energy_path: string | null;  // e.g., "energy_l1"
   mqtt_energy_multiplier: number;  // Unit conversion for energy
+  mqtt_energy_total_path: string | null;  // Lifetime counter on the energy topic (#3582)
+  mqtt_energy_total_multiplier: number;
   // State monitoring
   mqtt_state_topic: string | null;  // Topic for state data
   mqtt_state_path: string | null;  // e.g., "state_l1" for ON/OFF
@@ -2528,6 +2537,8 @@ export interface SmartPlugCreate {
   mqtt_energy_topic?: string | null;
   mqtt_energy_path?: string | null;
   mqtt_energy_multiplier?: number;
+  mqtt_energy_total_path?: string | null;
+  mqtt_energy_total_multiplier?: number;
   // State monitoring
   mqtt_state_topic?: string | null;
   mqtt_state_path?: string | null;
@@ -2598,6 +2609,8 @@ export interface SmartPlugUpdate {
   mqtt_energy_topic?: string | null;
   mqtt_energy_path?: string | null;
   mqtt_energy_multiplier?: number;
+  mqtt_energy_total_path?: string | null;
+  mqtt_energy_total_multiplier?: number;
   // MQTT state fields
   mqtt_state_topic?: string | null;
   mqtt_state_path?: string | null;
@@ -4185,6 +4198,8 @@ export interface SpoolmanBulkCreateResult {
 export interface CsvImportRow {
   row_number: number;
   status: 'valid' | 'error' | 'skipped';
+  /** The id the spool is created with (#3520); null gets the next free one. */
+  keeps_id?: number | null;
   reason: string | null;
   material: string | null;
   brand: string | null;
