@@ -593,7 +593,7 @@ async def get_slicer_settings(
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     try:
-        data = await cloud.get_slicer_settings(version)
+        data = await cloud.get_slicer_settings(version, include_public=True)
 
         result = SlicerSettingsResponse()
 

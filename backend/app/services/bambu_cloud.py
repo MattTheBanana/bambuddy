@@ -832,9 +832,15 @@ class BambuCloudService:
         except httpx.RequestError as e:
             raise BambuCloudError(f"Request failed: {e}")
 
-    async def get_slicer_settings(self, version: str = _SLICER_API_VERSION) -> dict:
+    async def get_slicer_settings(self, version: str = _SLICER_API_VERSION, *, include_public: bool = False) -> dict:
         """
-        Get all slicer settings (filament, printer, process presets).
+        Get the user's private presets, optionally including public stock presets.
+
+        Bambu's API applies the public query parameter as a visibility
+        selector. public=false returns user presets and leaves the public
+        arrays empty; public=true returns the stock presets used as base_id
+        choices when creating a Cloud preset. Callers that need the complete
+        catalog opt in with include_public=True.
 
         Args:
             version: Slicer version string. Bambu's API requires the XX.YY.ZZ.WW
@@ -846,33 +852,53 @@ class BambuCloudService:
         if not self.is_authenticated:
             raise BambuCloudAuthError("Not authenticated")
 
-        try:
+        async def fetch_visibility_tier(public: bool) -> dict:
             response = await self._client.get(
                 f"{self.base_url}/v1/iot-service/api/slicer/setting",
                 headers=self._get_headers(),
-                # Do not filter by visibility: the Profiles editor needs
-                # Bambu's public built-in presets as base presets as well as
-                # the account's private custom presets.
-                params={"version": version},
+                params={"version": version, "public": str(public).lower()},
             )
 
             if await self._note_response(response):
                 raise BambuCloudAuthError("Bambu Cloud session expired")
             if response.status_code != 200:
-                # Preserve Bambu's response details in the error so API
-                # contract changes and account/region restrictions are
-                # diagnosable from the app's failed-to-load message.
+                # Preserve Bambu's response details so API contract changes and
+                # account/region restrictions are diagnosable from the logs.
                 body = (response.text or "")[:500]
                 raise BambuCloudError(
-                    f"Failed to get settings: HTTP {response.status_code} {body}",
+                    f"Failed to get settings (public={str(public).lower()}): HTTP {response.status_code} {body}",
                     status_code=response.status_code,
                 )
 
-            data = _cloud_json(response)
-            return _slicer_settings_listing(data)
+            return _slicer_settings_listing(_cloud_json(response))
+
+        try:
+            private_listing = await fetch_visibility_tier(False)
+            if not include_public:
+                return private_listing
+
+            # The Cloud preset editor needs the public stock IDs for base_id.
+            # Some Cloud regions or API versions may include both buckets in
+            # either response, so merge and deduplicate by stable preset ID.
+            public_listing = await fetch_visibility_tier(True)
+            for preset_type in _SLICER_SETTING_TYPES:
+                for visibility in ("private", "public"):
+                    merged: list[dict] = []
+                    seen: set[str] = set()
+                    for entry in private_listing[preset_type][visibility] + public_listing[preset_type][visibility]:
+                        identity = entry.get("setting_id") or entry.get("id") or entry.get("name")
+                        if identity is not None:
+                            identity = str(identity)
+                            if identity in seen:
+                                continue
+                            seen.add(identity)
+                        merged.append(entry)
+                    private_listing[preset_type][visibility] = merged
+
+            return private_listing
 
         except httpx.RequestError as e:
-            raise BambuCloudError(f"Request failed: {e}")
+            raise BambuCloudError(f"Request failed: {e}") from e
 
     async def get_setting_detail(self, setting_id: str) -> dict:
         """Get detailed information for a specific setting/preset."""

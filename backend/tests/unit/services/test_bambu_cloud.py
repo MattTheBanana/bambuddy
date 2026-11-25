@@ -484,31 +484,64 @@ class TestSlicerSettingVersionParam:
         return cloud
 
     @pytest.mark.asyncio
-    async def test_get_slicer_settings_includes_public_base_presets(self):
-        """The full listing includes built-in presets needed as cloud-profile bases."""
+    async def test_get_slicer_settings_fetches_both_visibility_tiers(self):
+        """Public stock IDs and private custom presets are both required by Profiles."""
         cloud = self._auth()
-        public_printer = {"setting_id": "GP1", "name": "Bambu Lab X1C 0.4 nozzle"}
-        public_process = {"setting_id": "GP2", "name": "0.20mm Standard"}
+        private_printer = {"setting_id": "PMUS-user", "name": "My X1C"}
+        private_process = {"setting_id": "PPUS-user", "name": "My 0.20mm"}
+        private_filament = {"setting_id": "PFUS-user", "name": "My PLA"}
+        public_printer = {"setting_id": "GM001", "name": "Bambu Lab X1C 0.4 nozzle"}
+        public_process = {"setting_id": "GP001", "name": "0.20mm Standard"}
         public_filament = {"setting_id": "GFSA00", "name": "Generic PLA"}
 
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
+        private_response = MagicMock()
+        private_response.status_code = 200
+        private_response.json.return_value = {
+            "printer": {"private": [private_printer], "public": []},
+            "print": {"private": [private_process], "public": []},
+            "filament": {"private": [private_filament], "public": []},
+        }
+        public_response = MagicMock()
+        public_response.status_code = 200
+        public_response.json.return_value = {
             "printer": {"private": [], "public": [public_printer]},
             "print": {"private": [], "public": [public_process]},
             "filament": {"private": [], "public": [public_filament]},
         }
 
         with patch.object(cloud._client, "get", new_callable=AsyncMock) as mock_get:
-            mock_get.return_value = mock_response
-            listing = await cloud.get_slicer_settings()
+            mock_get.side_effect = [private_response, public_response]
+            listing = await cloud.get_slicer_settings(include_public=True)
 
-            params = mock_get.call_args.kwargs.get("params") or {}
-            assert params.get("version")
-            assert "public" not in params
+            assert mock_get.await_count == 2
+            params = [await_call.kwargs["params"] for await_call in mock_get.await_args_list]
+            assert params[0]["public"] == "false"
+            assert params[1]["public"] == "true"
+            assert params[0]["version"] == params[1]["version"]
+            assert listing["printer"]["private"] == [private_printer]
+            assert listing["print"]["private"] == [private_process]
+            assert listing["filament"]["private"] == [private_filament]
             assert listing["printer"]["public"] == [public_printer]
             assert listing["print"]["public"] == [public_process]
             assert listing["filament"]["public"] == [public_filament]
+
+    @pytest.mark.asyncio
+    async def test_get_slicer_settings_defaults_to_private_only(self):
+        cloud = self._auth()
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "printer": {"private": [], "public": []},
+            "print": {"private": [], "public": []},
+            "filament": {"private": [], "public": []},
+        }
+
+        with patch.object(cloud._client, "get", new_callable=AsyncMock) as mock_get:
+            mock_get.return_value = mock_response
+            await cloud.get_slicer_settings()
+
+            assert mock_get.await_count == 1
+            assert mock_get.call_args.kwargs["params"]["public"] == "false"
 
     @pytest.mark.asyncio
     async def test_get_setting_detail_sends_version_param(self):

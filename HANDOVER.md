@@ -172,3 +172,12 @@ The version remains `1.3.2`; the Wave configuration and Web Slicer test expectat
 - Replaced the private-only request test with regression coverage asserting that public printer, process and filament base presets are returned and that the request does not send a `public` filter. Extended the route test to assert public presets are marked non-custom and private presets remain custom.
 - Branch: `fix/cloud-profile-base-presets`, based on `main` at `06c0badeb275ea0bee141a98eeee15750499433f`.
 - Validation: source-level checks only; no local Python environment or Bambu Cloud account is available in this session, so tests and live Cloud preset creation have not been run. Run `pytest backend/tests/unit/services/test_bambu_cloud.py backend/tests/unit/test_cloud_preset_listing_nulls_3593.py` and verify create flow against Bambu Cloud before merging.
+
+
+## Cloud Profile base-preset follow-up — 2026-11-24
+
+- User retested PR #25 and confirmed the base-preset selector was still empty. The earlier change that merely omitted public=false was insufficient: Bambu Cloud's visibility query is explicit, and the regular private preset-sync request does not enumerate the public stock catalogue.
+- Corrected BambuCloudService.get_slicer_settings() to support both public=false (account custom presets) and public=true (public stock presets), merging both buckets with stable-ID deduplication when include_public=True. The /cloud/settings route opts in; slicing and filament-resolution callers retain the previous private-only one-request behavior.
+- Regression coverage now asserts both query values are sent and that public printer/process/filament base IDs and private custom profiles are all returned.
+- Branch: fix/cloud-public-base-preset-catalog, based on main after PR #25 merge (b64c2d2beace4a431b24d2c9525a72c8389575eb).
+- Validation: source-level only until GitHub Actions completes; no local test runner or live Bambu account is available here. Re-run the Cloud Profile creation flow after deploying this branch.
