@@ -873,29 +873,11 @@ class BambuCloudService:
             return _slicer_settings_listing(_cloud_json(response))
 
         try:
-            private_listing = await fetch_visibility_tier(False)
-            if not include_public:
-                return private_listing
-
-            # The Cloud preset editor needs the public stock IDs for base_id.
-            # Some Cloud regions or API versions may include both buckets in
-            # either response, so merge and deduplicate by stable preset ID.
-            public_listing = await fetch_visibility_tier(True)
-            for preset_type in _SLICER_SETTING_TYPES:
-                for visibility in ("private", "public"):
-                    merged: list[dict] = []
-                    seen: set[str] = set()
-                    for entry in private_listing[preset_type][visibility] + public_listing[preset_type][visibility]:
-                        identity = entry.get("setting_id") or entry.get("id") or entry.get("name")
-                        if identity is not None:
-                            identity = str(identity)
-                            if identity in seen:
-                                continue
-                            seen.add(identity)
-                        merged.append(entry)
-                    private_listing[preset_type][visibility] = merged
-
-            return private_listing
+            # Bambu's public=true response includes the public stock catalogue
+            # and the account's private presets (private defaults to true).
+            # A second public=false request is only needed by private-only
+            # consumers and cannot add anything to this full-catalog response.
+            return await fetch_visibility_tier(include_public)
 
         except httpx.RequestError as e:
             raise BambuCloudError(f"Request failed: {e}") from e
