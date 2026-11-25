@@ -832,15 +832,17 @@ class BambuCloudService:
         except httpx.RequestError as e:
             raise BambuCloudError(f"Request failed: {e}")
 
-    async def get_slicer_settings(self, version: str = _SLICER_API_VERSION) -> dict:
+    async def get_slicer_settings(
+        self, version: str = _SLICER_API_VERSION, *, include_public: bool = False
+    ) -> dict:
         """
-        Get the user's private presets and Bambu's public built-in presets.
+        Get the user's private presets, optionally including public stock presets.
 
         Bambu's API applies the public query parameter as a visibility
         selector. public=false returns user presets and leaves the public
         arrays empty; public=true returns the stock presets used as base_id
-        choices when creating a Cloud preset. Fetch both tiers so callers
-        that need the full catalog do not silently lose either one.
+        choices when creating a Cloud preset. Callers that need the complete
+        catalog opt in with include_public=True.
 
         Args:
             version: Slicer version string. Bambu's API requires the XX.YY.ZZ.WW
@@ -874,15 +876,14 @@ class BambuCloudService:
             return _slicer_settings_listing(_cloud_json(response))
 
         try:
-            # Both calls are intentional: the Cloud preset editor needs the
-            # public stock IDs for base_id, while the Profiles list also needs
-            # the account's private presets.
             private_listing = await fetch_visibility_tier(False)
-            public_listing = await fetch_visibility_tier(True)
+            if not include_public:
+                return private_listing
 
-            # Preserve the API's two visibility buckets. Some Cloud regions or
-            # API versions may include both buckets in either response, so
-            # merge both responses and deduplicate by stable preset ID.
+            # The Cloud preset editor needs the public stock IDs for base_id.
+            # Some Cloud regions or API versions may include both buckets in
+            # either response, so merge and deduplicate by stable preset ID.
+            public_listing = await fetch_visibility_tier(True)
             for preset_type in _SLICER_SETTING_TYPES:
                 for visibility in ("private", "public"):
                     merged: list[dict] = []
