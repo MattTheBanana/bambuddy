@@ -1420,7 +1420,11 @@ function CreatePresetModal({
   // Sync JSON text with settings object
   useEffect(() => {
     if (activeTab !== 'json') {
+      // The form controls are the source of truth outside the JSON tab. Keep
+      // the JSON editor synchronized and clear parse errors left behind by an
+      // earlier, now-discarded invalid JSON edit.
       setJsonText(JSON.stringify(settingsObj, null, 2));
+      setJsonError(null);
     }
   }, [settingsObj, activeTab]);
 
@@ -1593,6 +1597,7 @@ function CreatePresetModal({
           const settings = parsed.setting || parsed;
           setSettingsObj(prev => ({ ...prev, ...settings }));
           setJsonText(JSON.stringify({ ...settingsObj, ...settings }, null, 2));
+          setJsonError(null);
           showToast(t('profiles.presets.fileImported'));
         } catch {
           showToast(t('profiles.presets.invalidJsonFile'), 'error');
@@ -1837,6 +1842,11 @@ function CreatePresetModal({
                     <option key={preset.setting_id} value={preset.setting_id}>{preset.name}</option>
                   ))}
                 </select>
+                {!isEditMode && !baseId && (
+                  <p className="mt-1 text-xs text-amber-400" role="status">
+                    {t('profiles.presets.basePresetRequired')}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm text-bambu-gray mb-1">{t('profiles.presets.presetName')}</label>
@@ -1940,6 +1950,8 @@ function CreatePresetModal({
                       const parsed = JSON.parse(event.target?.result as string);
                       const settings = parsed.setting || parsed;
                       setSettingsObj(prev => ({ ...prev, ...settings }));
+                      setJsonText(JSON.stringify({ ...settingsObj, ...settings }, null, 2));
+                      setJsonError(null);
                       showToast(t('profiles.presets.fileImported'));
                     } catch {
                       showToast(t('profiles.presets.invalidJson'), 'error');
@@ -2279,6 +2291,9 @@ function CreatePresetModal({
             <Button
               onClick={() => saveMutation.mutate()}
               disabled={saveMutation.isPending || !name.trim() || (!isEditMode && !baseId) || !!jsonError}
+              title={!isEditMode && !baseId
+                ? t('profiles.presets.basePresetRequired')
+                : jsonError ? t('profiles.presets.invalidJson') : undefined}
               className="flex-1"
             >
               {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : (isEditMode ? <Save className="w-4 h-4" /> : <Plus className="w-4 h-4" />)}
