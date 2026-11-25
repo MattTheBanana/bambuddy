@@ -877,7 +877,18 @@ class BambuCloudService:
             # and the account's private presets (private defaults to true).
             # A second public=false request is only needed by private-only
             # consumers and cannot add anything to this full-catalog response.
-            return await fetch_visibility_tier(include_public)
+            listing = await fetch_visibility_tier(include_public)
+            if include_public:
+                public_counts = {kind: len(listing[kind]["public"]) for kind in _SLICER_SETTING_TYPES}
+                if not any(public_counts.values()):
+                    logger.warning(
+                        "Bambu Cloud returned no public stock presets for version %s (types: %s)",
+                        version,
+                        public_counts,
+                    )
+                else:
+                    logger.debug("Bambu Cloud public stock preset counts: %s", public_counts)
+            return listing
 
         except httpx.RequestError as e:
             raise BambuCloudError(f"Request failed: {e}") from e
