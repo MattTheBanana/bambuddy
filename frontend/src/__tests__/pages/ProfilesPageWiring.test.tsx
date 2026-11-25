@@ -173,6 +173,21 @@ describe('ProfilesPage wiring: cloud presets', () => {
     expect(catalogRequests).toBe(2);
   });
 
+  it('shows per-type catalog counts when a fresh request still has no built-in presets', async () => {
+    const user = userEvent.setup();
+    server.use(
+      http.get('*/api/v1/cloud/settings', () =>
+        HttpResponse.json({ filament: [], printer: [], process: [] }),
+      ),
+    );
+
+    render(<ProfilesPage />);
+    await user.click(await screen.findByRole('button', { name: 'New Preset' }));
+
+    expect(await screen.findByText(/Catalog count: 0; custom: 0; built-in: 0\./)).toBeInTheDocument();
+    expect(await screen.findByText(/Bambu Cloud returned zero built-in presets/)).toBeInTheDocument();
+  });
+
   it('Create stays disabled without a base preset, so nothing is sent', async () => {
     const user = userEvent.setup();
     render(<ProfilesPage />);
