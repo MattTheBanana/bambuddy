@@ -484,25 +484,31 @@ class TestSlicerSettingVersionParam:
         return cloud
 
     @pytest.mark.asyncio
-    async def test_get_slicer_settings_sends_private_presets_param(self):
-        """Bambu Studio's preset-sync endpoint requires public=false."""
+    async def test_get_slicer_settings_includes_public_base_presets(self):
+        """The full listing includes built-in presets needed as cloud-profile bases."""
         cloud = self._auth()
+        public_printer = {"setting_id": "GP1", "name": "Bambu Lab X1C 0.4 nozzle"}
+        public_process = {"setting_id": "GP2", "name": "0.20mm Standard"}
+        public_filament = {"setting_id": "GFSA00", "name": "Generic PLA"}
 
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "printer": {"private": [], "public": []},
-            "print": {"private": [], "public": []},
-            "filament": {"private": [], "public": []},
+            "printer": {"private": [], "public": [public_printer]},
+            "print": {"private": [], "public": [public_process]},
+            "filament": {"private": [], "public": [public_filament]},
         }
 
         with patch.object(cloud._client, "get", new_callable=AsyncMock) as mock_get:
             mock_get.return_value = mock_response
-            await cloud.get_slicer_settings()
+            listing = await cloud.get_slicer_settings()
 
             params = mock_get.call_args.kwargs.get("params") or {}
             assert params.get("version")
-            assert params.get("public") == "false"
+            assert "public" not in params
+            assert listing["printer"]["public"] == [public_printer]
+            assert listing["print"]["public"] == [public_process]
+            assert listing["filament"]["public"] == [public_filament]
 
     @pytest.mark.asyncio
     async def test_get_setting_detail_sends_version_param(self):
