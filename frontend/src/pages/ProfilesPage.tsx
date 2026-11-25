@@ -1441,21 +1441,23 @@ function CreatePresetModal({
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [allPresets, presetType]);
 
-  // Set inherits field when base preset changes (don't pre-fill all values - they show as placeholders)
-  // In edit mode, don't reset settingsObj - keep the saved values
+  // Keep the selected base in the override object without discarding values
+  // the user has already entered when they switch to another base preset.
+  // In edit mode, preserve the saved setting exactly as it was loaded.
   useEffect(() => {
     if (!baseId) return;
 
     const preset = availableBasePresets.find(p => p.setting_id === baseId);
     if (preset) {
       setBaseName(preset.name);
-      // Don't reset settings in edit mode - keep saved values
-      if (!isEditMode) {
-        setSettingsObj({ inherits: preset.name });
-        setJsonText(JSON.stringify({ inherits: preset.name }, null, 2));
+      if (!isEditMode && settingsObj.inherits !== preset.name) {
+        const nextSettings = { ...settingsObj, inherits: preset.name };
+        setSettingsObj(nextSettings);
+        setJsonText(JSON.stringify(nextSettings, null, 2));
+        setJsonError(null);
       }
     }
-  }, [baseId, availableBasePresets, isEditMode]);
+  }, [baseId, availableBasePresets, isEditMode, settingsObj]);
 
   // Build dynamic fields list: merge API definitions with discovered fields from user presets
   const dynamicFields = useMemo(() => {
