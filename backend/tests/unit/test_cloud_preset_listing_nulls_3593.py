@@ -63,7 +63,9 @@ async def test_the_profiles_page_lists_the_presets_the_account_has():
         result = await cloud_routes.get_slicer_settings(db=MagicMock(), current_user=None)
 
     assert [s.name for s in result.printer] == ["Bambu Lab X1C 0.4 nozzle"]
+    assert result.printer[0].is_custom is False  # public preset: valid base preset
     assert [s.name for s in result.process] == ["My 0.2mm"]
+    assert result.process[0].is_custom is True  # private preset: user-created
     assert result.filament == []
 
 

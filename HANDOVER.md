@@ -163,3 +163,12 @@ The version remains `1.3.2`; the Wave configuration and Web Slicer test expectat
 - Created merge commit `15c34846309d40863ecd67b84165235e9f88c367` with current `main` (`6562155d748be40d40daeeb79c1e2cfcbf0a4bb5`) as first parent and the resolved v1.3.2 branch (`96adfb5e35c07ce18760829109f65a8efb6c0157`) as second parent. The resulting tree starts from current `main` and overlays all 144 files changed by PR #23 from the resolved branch, retaining both sides of the overlaps.
 - Verification after the merge commit: GitHub reports PR #23 `mergeable=true`; compare status is `ahead`, 21 commits ahead / 0 behind, with 144 changed files. PR #23 remains open and has not been merged.
 - No backend/frontend test suite, build, Docker build or Web Slicer end-to-end test was run as part of this conflict-resolution pass. Confirm CI and the previously listed smoke tests before merging.
+
+
+## Cloud Profile base-preset listing fix — 2026-11-24
+
+- Root cause: `BambuCloudService.get_slicer_settings()` sent `public=false`, which filtered Bambu's public built-in presets out of the listing. The Cloud Profile editor correctly filters the returned presets to built-ins for its required `base_id`, so the base-preset selector was empty even when the account had stock presets.
+- Changed `backend/app/services/bambu_cloud.py` to request the full listing with the required slicer `version` only, matching upstream's request contract. The existing response normalizer and route already preserve both `private` and `public` tiers; private custom presets remain available.
+- Replaced the private-only request test with regression coverage asserting that public printer, process and filament base presets are returned and that the request does not send a `public` filter. Extended the route test to assert public presets are marked non-custom and private presets remain custom.
+- Branch: `fix/cloud-profile-base-presets`, based on `main` at `06c0badeb275ea0bee141a98eeee15750499433f`.
+- Validation: source-level checks only; no local Python environment or Bambu Cloud account is available in this session, so tests and live Cloud preset creation have not been run. Run `pytest backend/tests/unit/services/test_bambu_cloud.py backend/tests/unit/test_cloud_preset_listing_nulls_3593.py` and verify create flow against Bambu Cloud before merging.

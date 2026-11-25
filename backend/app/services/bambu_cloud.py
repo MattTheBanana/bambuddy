@@ -850,9 +850,10 @@ class BambuCloudService:
             response = await self._client.get(
                 f"{self.base_url}/v1/iot-service/api/slicer/setting",
                 headers=self._get_headers(),
-                # Match Bambu Studio's preset-sync request: private user presets
-                # only. Bundled stock presets are supplied by the local slicer.
-                params={"version": version, "public": "false"},
+                # Do not filter by visibility: the Profiles editor needs
+                # Bambu's public built-in presets as base presets as well as
+                # the account's private custom presets.
+                params={"version": version},
             )
 
             if await self._note_response(response):
