@@ -886,15 +886,8 @@ class BambuCloudService:
                 for visibility in ("private", "public"):
                     merged: list[dict] = []
                     seen: set[str] = set()
-                    for entry in (
-                        private_listing[preset_type][visibility]
-                        + public_listing[preset_type][visibility]
-                    ):
-                        identity = (
-                            entry.get("setting_id")
-                            or entry.get("id")
-                            or entry.get("name")
-                        )
+                    for entry in private_listing[preset_type][visibility] + public_listing[preset_type][visibility]:
+                        identity = entry.get("setting_id") or entry.get("id") or entry.get("name")
                         if identity is not None:
                             identity = str(identity)
                             if identity in seen:
