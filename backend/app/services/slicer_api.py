@@ -128,7 +128,11 @@ def _format_sidecar_error(response: httpx.Response) -> str:
     message = payload.get("message") or ""
     details = payload.get("details") or ""
     if message and details:
-        return f"{message}: {details}"[:500]
+        # The sidecar puts the slicer CLI stdout/stderr in `details` (up to
+        # 4 KiB each). Keep the complete bounded diagnostic payload here: the
+        # route layer needs the later `[error]` line to replace OrcaSlicer's
+        # generic CLI_SLICING_ERROR message with the actual rejection reason.
+        return f"{message}: {details}"[:9000]
     return (message or details or response.text)[:500]
 
 
