@@ -172,7 +172,14 @@ class TestSliceWithProfiles:
         def handler(request: httpx.Request) -> httpx.Response:
             return httpx.Response(
                 status_code=500,
-                json={"message": "Slicing failed with error from slicer: Failed slicing the model. Please verify the slicing of all plates on Orca Slicer before uploading.", "details": details},
+                json={
+                    "message": (
+                        "Slicing failed with error from slicer: Failed slicing "
+                        "the model. Please verify the slicing of all plates on "
+                        "Orca Slicer before uploading."
+                    ),
+                    "details": details,
+                },
             )
 
         service = SlicerApiService("http://sidecar:3000", client=_mock_client(handler))
