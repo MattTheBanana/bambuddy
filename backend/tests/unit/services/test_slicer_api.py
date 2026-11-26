@@ -162,6 +162,31 @@ class TestSliceWithProfiles:
         assert "prime_tower_brim_width: -1" in msg
 
     @pytest.mark.asyncio
+    async def test_5xx_preserves_cli_diagnostic_after_long_details(self):
+        """The actionable [error] line often follows hundreds of bytes of CLI
+        output; it must survive formatting so the library route can extract it."""
+
+        diagnostic = "[2026-11-26 12:00:00] [error] run 1234: Object is outside the printable area"
+        details = ("pre-slice diagnostic " * 40) + "\nstdout: " + diagnostic
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                status_code=500,
+                json={"message": "Slicing failed with error from slicer: Failed slicing the model. Please verify the slicing of all plates on Orca Slicer before uploading.", "details": details},
+            )
+
+        service = SlicerApiService("http://sidecar:3000", client=_mock_client(handler))
+        with pytest.raises(SlicerApiServerError) as exc_info:
+            await service.slice_with_profiles(
+                model_bytes=b"x",
+                model_filename="Table or Tile Saw Key Thinner.stl",
+                printer_profile_json="{}",
+                process_profile_json="{}",
+                filament_profile_jsons=["{}"],
+            )
+        assert "Object is outside the printable area" in str(exc_info.value)
+
+    @pytest.mark.asyncio
     async def test_5xx_with_only_details_still_surfaces(self):
         """If a future sidecar version emits ``details`` without
         ``message``, fall back to the details string so we don't end up
