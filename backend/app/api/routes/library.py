@@ -4349,7 +4349,16 @@ def _slicer_rejection_message(error_text: str) -> str | None:
     # When the headline is Bambu Studio's catch-all placeholder, the real
     # reason is in the stdout `[error]` line. Substitute it. The placeholder
     # by itself tells the user nothing about why their slice was rejected.
-    if cli_diagnostic and (reason is None or reason == _INPUT_PRESET_INVALID_PLACEHOLDER):
+    generic_cli_failure = bool(reason and reason.lower().startswith("failed slicing the model"))
+    if cli_diagnostic and (
+        reason is None
+        or reason == _INPUT_PRESET_INVALID_PLACEHOLDER
+        or generic_cli_failure
+    ):
+        # OrcaSlicer reports CLI_SLICING_ERROR with this generic sentence for
+        # a range of real failures. Its `[error]` log line is the actionable
+        # reason (out-of-bounds geometry, invalid config, etc.); prefer that
+        # line just as we already do for BambuStudio's generic preset error.
         return cli_diagnostic
     return reason
 
